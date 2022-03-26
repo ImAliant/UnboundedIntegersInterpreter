@@ -1,7 +1,10 @@
-a = 21828129829
+a = 74187418
 a = a * a
-a = a - 423289
-b = 9384312
-b = 3 * b
+b = 2187217
 a = a - b
-c = a - -6473839
+b = b + b
+a = a + a
+print a
+print b
+c = a - b
+print c
