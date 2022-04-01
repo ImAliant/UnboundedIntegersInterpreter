@@ -11,10 +11,12 @@ unbounded_int string2unbounded_int(const char *e) {
 
     char * virg = strstr(e, ",");
     char * m;
+    char * p;
     if(virg != NULL)
         res.signe = '*';
     else{
         m = strstr(e, "-");
+        p = strstr(e, "+");
         if(m != NULL)
             res.signe = '-';
         else{
@@ -25,16 +27,16 @@ unbounded_int string2unbounded_int(const char *e) {
     chiffre * prem = malloc(sizeof(chiffre));
     prem->suivant = NULL;
     prem->precedent = NULL;
-    int prem_ent;
-    if(m != NULL) prem_ent = 1;
+    unsigned int prem_ent;
+    if(m != NULL || p != NULL) prem_ent = 1;
     else prem_ent =0;
     prem->c=e[prem_ent];
 
     res.premier = prem;
     res.dernier = prem;
 
-    int len = strlen(e);
-    int length = 0;
+    unsigned int len = strlen(e);
+    unsigned int length = 0;
 
     for(int i=prem_ent+1; i<len; i++){
         chiffre *n_elt = malloc(sizeof(chiffre));
@@ -59,7 +61,7 @@ unbounded_int ll2unbounded_int(long long i) {
     char *s = malloc(20*sizeof(long long)+1);
     assert(s != NULL);
 
-    ulltoa(i, s, 10);
+    lltoa(i, s, 10);
 
     res = string2unbounded_int(s);
 
@@ -72,7 +74,7 @@ char *unbounded_int2string(unbounded_int i) {
 
     chiffre *cur = i.premier;
 
-    int index;
+    unsigned int index;
     if(i.signe == '-') {
         res[0] = i.signe;
         index = 1;
@@ -83,6 +85,7 @@ char *unbounded_int2string(unbounded_int i) {
         index++;
         cur = cur->suivant;
     }
+    res[i.len] = '\0';
 
     return res;
 }
@@ -117,100 +120,306 @@ int unbounded_int_cmp_ll(unbounded_int a, long long b) {
     else return 1;
 }
 
+static int getSizeChaine(unbounded_int i) {
+    int count = 0;
+    chiffre *cur = i.premier;
+    while(cur != NULL) {
+        count++;
+        cur = cur->suivant;
+    }
+    return count;
+}
+
 unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
-    char *sa = malloc(a.len*sizeof(char)+1);
-    assert(sa != NULL);
-    sa = unbounded_int2string(a);
+    if((a.signe == '+' && b.signe == '+') || (a.signe == '-' && b.signe == '-')) {
+        chiffre * dern = malloc(sizeof(chiffre));
+        assert(dern != NULL);
+        dern->suivant = NULL;
+        dern->precedent = NULL;
 
-    char *sb = malloc(b.len*sizeof(char)+1);
-    assert(sb != NULL);
-    sb = unbounded_int2string(b);
+        res.premier = dern;
+        res.dernier = dern;
 
-    int ia = atoi(sa);
-    int ib = atoi(sb);
+        int r = 0;
+        chiffre *cur_a = a.dernier;
+        chiffre *cur_b = b.dernier;
+        chiffre *cur_res = res.dernier;
     
-    int sum = ia + ib;
+        while(cur_a != NULL && cur_b != NULL) {
+            cur_res->c = (char)(((cur_a->c-'0')+(cur_b->c-'0')+r)%10 + '0');
+            r = ((cur_a->c-'0')+(cur_b->c-'0')+r)/10;
 
-    char *ssum = malloc(sizeof(int)*a.len+b.len+1);
-    itoa(sum, ssum, 10);
+            cur_res->precedent = malloc(sizeof(chiffre));
+            assert(cur_res->precedent != NULL);
+            cur_res->precedent->suivant = cur_res;
+            cur_res = cur_res->precedent;
+            cur_a = cur_a->precedent;
+            cur_b = cur_b->precedent;
+        }
+        int l_a = a.len;
+        int l_b = b.len;
+        int diff = abs(a.len - b.len);
 
-    res = string2unbounded_int(ssum);
+        int i;
+        if(l_a < l_b) {
+            i = 0;
+            while(i < diff) {
+                cur_res->c = (char)(((cur_b->c-'0')+r)%10 + '0'); 
+                r = ((cur_b->c-'0')+r)/10;
 
+                cur_res->precedent = malloc(sizeof(chiffre));
+                assert(cur_res->precedent != NULL);
+                cur_res->precedent->suivant = cur_res;
+                cur_res = cur_res->precedent;
+                cur_b = cur_b->precedent;
+                i++;
+            }
+        }
+        if(l_a > l_b) {
+            i = 0;
+            while(i < diff) {
+                cur_res->c = (char)(((cur_a->c-'0')+r)%10 + '0'); 
+                r = ((cur_a->c-'0')+r)/10;
+
+                cur_res->precedent = malloc(sizeof(chiffre));
+                assert(cur_res->precedent != NULL);
+                cur_res->precedent->suivant = cur_res;
+                cur_res = cur_res->precedent;
+                cur_a = cur_a->precedent;
+                i++;
+            }
+        }
+        if(r>0) {
+            cur_res->c = (char)(r+'0');
+            res.premier = cur_res;
+        }
+        else {
+            res.premier = cur_res->suivant;
+            free(cur_res);
+        }
+
+        int length = getSizeChaine(res);
+        res.len = length;
+        if(a.signe == '+' && b.signe == '+')
+            res.signe = '+';
+        else res.signe = '-';
+    }
+    else {
+        if(a.signe == '+' && b.signe == '-') {
+            b.signe = '+';
+            res = unbounded_int_difference(a, b);
+        }
+        else {
+            a.signe = '+'; 
+            res = unbounded_int_difference(b, a);
+        }
+        
+    }
+    
     return res;
 }
 
 unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
-    char *sa = malloc(a.len*sizeof(char)+1);
-    assert(sa != NULL);
-    sa = unbounded_int2string(a);
+    int l_a = a.len;
+    int l_b = b.len;
+    int diff = abs(a.len - b.len);
+    
+    if((a.signe == '+' && b.signe == '+') || (a.signe == '-' && b.signe == '-')) {
+        chiffre * dern = malloc(sizeof(chiffre));
+        assert(dern != NULL);
+        dern->suivant = NULL;
+        dern->precedent = NULL;
 
-    char *sb = malloc(b.len*sizeof(char)+1);
-    assert(sb != NULL);
-    sb = unbounded_int2string(b);
+        res.premier = dern;
+        res.dernier = dern;
 
-    int ia = atoi(sa);
-    int ib = atoi(sb);
+        int r = 0;
+        chiffre *cur_a = a.dernier;
+        chiffre *cur_b = b.dernier;
+        chiffre *cur_res = res.dernier;
 
-    int diff = abs(ia - ib);
+        while(cur_a != NULL && cur_b != NULL) {
+            int calc;
+            if(l_a < l_b)
+                calc = (cur_b->c - '0')-(cur_a->c - '0')+r;
+            else calc = (cur_a->c - '0')-(cur_b->c - '0')+r;
+            
+            cur_res->c = (calc >= 0) ? (char)(calc+'0') : (char)((calc+10)+'0');
+            r = (calc >= 0) ? 0 : -1;
 
-    char *sdiff = malloc(sizeof(int)*a.len+b.len+1);
-    itoa(diff, sdiff, 10);
+            cur_res->precedent = malloc(sizeof(chiffre));
+            assert(cur_res->precedent != NULL);
+            cur_res->precedent->suivant = cur_res;
+            cur_res = cur_res->precedent;
+            cur_a = cur_a->precedent;
+            cur_b = cur_b->precedent;
+        }
 
-    res = string2unbounded_int(sdiff);
+        int i;
+        if(l_a < l_b) {
+            i = 0;
+            while(i < diff) {
+                cur_res->c = (char)(((cur_b->c-'0')+r) + '0'); 
+                r = 0;
+
+                cur_res->precedent = malloc(sizeof(chiffre));
+                assert(cur_res->precedent != NULL);
+                cur_res->precedent->suivant = cur_res;
+                cur_res = cur_res->precedent;
+                cur_b = cur_b->precedent;
+                i++;
+            }
+        }
+        if(l_a > l_b){
+            i = 0;
+            while(i < diff) {
+                cur_res->c = (char)(((cur_a->c-'0')+r) + '0'); 
+                r = 0;
+
+                cur_res->precedent = malloc(sizeof(chiffre));
+                assert(cur_res->precedent != NULL);
+                cur_res->precedent->suivant = cur_res;
+                cur_res = cur_res->precedent;
+                cur_a = cur_a->precedent;
+                i++;
+            }
+        }
+
+        if(cur_res->suivant->c == '0') {
+            res.premier = cur_res->suivant->suivant;
+            free(cur_res->suivant);
+            free(cur_res);
+        }
+        else {
+            res.premier = cur_res->suivant;
+            free(cur_res);
+        }
+
+        int length = getSizeChaine(res);
+        res.len = length;
+        if(a.signe == '+' && b.signe == '+') {
+            if(b.len > a.len) res.signe = '-';
+            else res.signe = '+';
+        }
+        else {
+            if(b.len > a.len) res.signe = '+';
+            else res.signe = '-';
+        }
+    }
+    else {
+        if(a.signe == '+' && b.signe == '-') {
+            b.signe = '+';
+            res = unbounded_int_somme(a, b);
+        }
+        else {
+            a.signe = '+'; 
+            res = unbounded_int_somme(a, b);
+            res.signe = '-';
+        }
+    }
 
     return res;
-}
-
-static int getSize(long long num) {
-    int count = 0;
-    while(num > 0) {
-        count++;
-        num /= 10;
-    }
-    return count;
-}
-
-static long long karatsuba(long long i, long long j) {
-    if(i < 10 && j < 10)
-        return i * j;
-    int size = fmax(getSize(i), getSize(j));
-
-    int n = (int)ceil(size / 2.0);
-    long long p = (long long)pow(10, n);
-    long long a = (long long)floor(i / (double)p);
-    long long b = i % p;
-    long long c = (long)floor(j / (double)p); 
-    long long d = j % p;
-
-    long long ac = karatsuba(a, c);
-    long long bd = karatsuba(b, d);
-    long e = karatsuba(a + b, c + d) - ac - bd;
-
-    return (long long)(pow(10 * 1LL, 2*n)*ac + pow(10*1LL, n)*e + bd);
 }
 
 unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
-    char *sa = malloc(a.len*sizeof(char)+1);
-    assert(sa != NULL);
-    sa = unbounded_int2string(a);
+    chiffre * dern = malloc(sizeof(chiffre));
+    assert(dern != NULL);
+    dern->suivant = NULL;
+    dern->precedent = NULL;
 
-    char *sb = malloc(b.len*sizeof(char)+1);
-    assert(sb != NULL);
-    sb = unbounded_int2string(b);
+    int m = a.len;
+    int n = b.len;
 
-    char *endptr;
-    long long ia = strtoll(sa, &endptr, 10);
-    long long ib = strtoll(sb, &endptr, 10);
+    res.dernier = dern;
 
-    long long prod = karatsuba(ia, ib);
+    for(int i = 0; i<m+n; i++) {
+        dern->c = '0';
+        dern->precedent = malloc(sizeof(chiffre));
+        assert(dern->precedent != NULL);
+        dern->precedent->suivant = dern;
+        dern = dern->precedent;
+    }
 
-    res = ll2unbounded_int(prod);
+    res.premier = dern->suivant;
+
+    chiffre *cur_a;
+    chiffre *cur_b;
+    chiffre *cur_res = res.dernier;
+
+    int r;
+
+    for(cur_b = b.dernier; cur_b != NULL; cur_b = cur_b->precedent) {
+        r = 0;
+        if(cur_b->c == '0') {
+            cur_res = cur_res->precedent;
+            continue;
+        }
+        for(cur_a = a.dernier; cur_a != NULL; cur_a = cur_a->precedent) {
+            int v = (cur_res->c-'0') + (cur_a->c-'0')*(cur_b->c-'0') + r;
+            cur_res->c = (char)((v%10)+'0');
+
+            r = v/10;
+            cur_res = cur_res->precedent;
+        }
+        cur_res = cur_res->suivant;
+    }
+
+    if(cur_res->c == '0') {
+        free(cur_res);
+        res.len = a.len+b.len-1;
+    }
+    else if(cur_res->c != '0' && r != 0){
+        res.premier = cur_res->precedent;
+        res.premier->c = (char)(r+'0');
+        res.len = a.len+b.len;
+    }
+    else if(cur_res->c != '0' && r == 0){
+        res.premier = cur_res;
+        res.len = a.len+b.len;
+    }
+
+    if((a.signe == '+' && b.signe == '+') || (a.signe == '-' && b.signe == '-'))
+        res.signe = '+';
+    else res.signe = '-';
 
     return res;
 }
+
+static char * binaire(char *c) {
+    long long nbr = atoi(c);
+    int r = 0;
+    int ord = 0;
+
+    char *res = malloc(16*sizeof(char)+1);
+
+    while(nbr != 0) {
+        int reste = nbr%2;
+        int p = (int)(pow(10, ord));
+        r += reste * p;
+        ord += 1;
+        nbr /= 2;
+    }
+
+    sprintf(res, "%d", r);
+
+    return res;
+}
+
+/*static int get_nb_bits(int nombre) {
+    int bits=0;
+    while(nombre)
+    {
+        nombre>>=1;
+        bits++;
+    }
+    return bits;
+}*/
+
+//unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {}
+
