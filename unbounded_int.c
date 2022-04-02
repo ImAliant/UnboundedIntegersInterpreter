@@ -61,8 +61,8 @@ unbounded_int ll2unbounded_int(long long i) {
     char *s = malloc(20*sizeof(long long)+1);
     assert(s != NULL);
 
-    lltoa(i, s, 10);
-
+    sprintf(s, "%lld", i);
+    
     res = string2unbounded_int(s);
 
     return res;
@@ -352,10 +352,10 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     chiffre *cur_b;
     chiffre *cur_res = res.dernier;
 
-    int r;
+    chiffre *temp = res.dernier;
+    int r = 0;
 
     for(cur_b = b.dernier; cur_b != NULL; cur_b = cur_b->precedent) {
-        r = 0;
         if(cur_b->c == '0') {
             cur_res = cur_res->precedent;
             continue;
@@ -363,23 +363,27 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         for(cur_a = a.dernier; cur_a != NULL; cur_a = cur_a->precedent) {
             int v = (cur_res->c-'0') + (cur_a->c-'0')*(cur_b->c-'0') + r;
             cur_res->c = (char)((v%10)+'0');
-
             r = v/10;
+
             cur_res = cur_res->precedent;
         }
-        cur_res = cur_res->suivant;
+        if(cur_b->precedent != NULL) {
+            cur_res = temp->precedent;
+            temp = temp->precedent;
+        }
     }
 
-    if(cur_res->c == '0') {
+    if(cur_res->c == '0' && r == 0) {
+        res.premier = cur_res->suivant;
         free(cur_res);
         res.len = a.len+b.len-1;
     }
-    else if(cur_res->c != '0' && r != 0){
-        res.premier = cur_res->precedent;
-        res.premier->c = (char)(r+'0');
+    else if(r != 0){
+        cur_res->c = (char)((cur_res->c - '0' + r) + '0');
+        res.premier = cur_res;
         res.len = a.len+b.len;
     }
-    else if(cur_res->c != '0' && r == 0){
+    else {
         res.premier = cur_res;
         res.len = a.len+b.len;
     }
@@ -391,7 +395,7 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     return res;
 }
 
-static char * binaire(char *c) {
+/*static char * binaire(char *c) {
     long long nbr = atoi(c);
     int r = 0;
     int ord = 0;
@@ -411,7 +415,7 @@ static char * binaire(char *c) {
     return res;
 }
 
-/*static int get_nb_bits(int nombre) {
+static int get_nb_bits(int nombre) {
     int bits=0;
     while(nombre)
     {
@@ -419,7 +423,7 @@ static char * binaire(char *c) {
         bits++;
     }
     return bits;
-}*/
+}
 
-//unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {}
+unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {}*/
 
