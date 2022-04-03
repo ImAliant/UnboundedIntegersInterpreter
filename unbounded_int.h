@@ -24,5 +24,6 @@ int unbounded_int_cmp_ll(unbounded_int a, long long b);
 unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b);
 unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b);
 unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b);
+//unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b);
 
 #endif

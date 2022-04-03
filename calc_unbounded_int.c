@@ -24,14 +24,26 @@ static int cherche_index_variable(char variable) {
     return index;
 }
 
-static void print(char c) {
+static void print(char c, char *d) {
     int index = cherche_index_variable(c);
     if(index == -1) {
         printf("Cette variable n'existe pas !");
         exit(1);
     }
     else {
-        printf("%c = %s\n", c, unbounded_int2string(valeur_variable[index]));
+        if(strcmp(d, "vide") == 0) {
+            printf("%c = %s\n", c, unbounded_int2string(valeur_variable[index]));
+        }
+        else {
+            FILE *dest = NULL;
+            dest = fopen(d, "a");
+            if(!dest) {
+                perror("fopen");
+                exit(EXIT_FAILURE);
+            }
+            fprintf(dest, "%c = %s\n", c, unbounded_int2string(valeur_variable[index]));
+            fclose(dest);
+        }
     }
 }
 
@@ -92,15 +104,6 @@ static void condition_operation(char op, char var, char *var1, char *var2) {
             addition(var, var1[0], variables[1]);
         else
             addition(var, var1[0], var2[0]);
-
-        /*if((isdigit(var1[0]) || ((var1[0] == '-' || var1[0] == '+') && isdigit(var1[1]))) && (isdigit(var2[0]) || ((var2[0] == '-' || var2[0] == '+') && isdigit(var2[1])))) 
-            addition(var, variables[0], variables[1]);
-        else if((isdigit(var1[0]) || ((var1[0] == '-' || var1[0] == '+') && isdigit(var1[1])) && (!isdigit(var2[0]) && var2[0] != '-' || var2[0] != '+')))
-            addition(var, variables[0], var2[0]);
-        else if((!isdigit(var1[0]) && var1[0] != '-' || var1[0] != '+') && (isdigit(var2[0]) || ((var2[0] == '-' || var2[0] == '+') && isdigit(var2[1]))))
-            addition(var, var1[0], variables[1]);
-        else
-            addition(var, var1[0], var2[0]);*/
         break;
     case '-':
         if(isdigit(var1[0]) && isdigit(var2[0]))
@@ -128,12 +131,17 @@ static void condition_operation(char op, char var, char *var1, char *var2) {
     }
 }
 
-void interpreteur(/*char *source, char *dest*/) {
-    FILE *instruc = fopen("source.txt", "r");
-    if(instruc == NULL) {
-		printf("Le fichier n'a pas pu être ouvert.\n");
-        exit(1);
+void interpreteur(char *source, char *dest) {
+    FILE *instruc = NULL;
+    if(strcmp(source, "vide") != 0) {
+        instruc = fopen(source, "r");
+        if(instruc == NULL) {
+		    printf("Le fichier n'a pas pu etre ouvert.\n");
+            exit(1);
+        }
     }
+    else
+        instruc = stdin;
 
     char var = 0;
     char * entier = malloc(20*sizeof(char));
@@ -152,74 +160,80 @@ void interpreteur(/*char *source, char *dest*/) {
     while(fgets(commande_ligne, 1023, instruc) != NULL) {
         char *prt = strstr(commande_ligne, "print");
         if(prt != NULL) {
-            var = commande_ligne[strlen(commande_ligne)-3];
-            print(var);
+            var = commande_ligne[strlen(commande_ligne)-2];
+            print(var, dest);
+        }
+        char *stop = strstr(commande_ligne, "STOP");
+        if(stop != NULL) {
+            fclose(instruc);
         }
         else {
-            long long e = 0;
-            if(sscanf(commande_ligne, "%c = %lld", &var, &e) == 2) {
-                int index = cherche_index_variable(var);
-                if(index == -1) {
+            char * var1 = malloc(20*sizeof(char));
+            assert(var1 != NULL);
+            char * var2 = malloc(20*sizeof(char));
+            assert(var2 != NULL);
+            if(sscanf(commande_ligne, "%c = %s %c %s", &var, var1, &op, var2) == 4) {
+                if(cherche_index_variable(var) == -1) {
                     variables[i] = var;
-                    valeur_variable[i] = ll2unbounded_int(e);
+                    valeur_variable[i] = string2unbounded_int("0");
                     i++;
                 }
-                else {
-                    valeur_variable[index] = ll2unbounded_int(e);
-                }
+                    
+                char *eptr;
+                long long result;
+                if(isdigit(var1[0]) || ((var1[0] == '-' || var1[0] == '+') && isdigit(var1[1])))
+                    valeur_variable[0] = string2unbounded_int(var1);
+                if(isdigit(var2[0]) || ((var2[0] == '-' || var2[0] == '+') && isdigit(var2[1])))
+                    valeur_variable[1] = string2unbounded_int(var2);
+
+                condition_operation(op, var, var1, var2);
             }
             else {
-                char * var1 = malloc(20*sizeof(char));
-                assert(var1 != NULL);
-                char * var2 = malloc(20*sizeof(char));
-                assert(var2 != NULL);
-                if(sscanf(commande_ligne, "%c = %s %c %s", &var, var1, &op, var2) == 4) {
-                    if(cherche_index_variable(var) == -1) {
+                char *ent = malloc(30*sizeof(char));
+                assert(ent != NULL);
+                if(sscanf(commande_ligne, "%c = %s", &var, ent) == 2) {
+                    int index = cherche_index_variable(var);
+                    if(index == -1) {
                         variables[i] = var;
-                        valeur_variable[i] = string2unbounded_int("0");
+                        valeur_variable[i] = string2unbounded_int(ent);
                         i++;
                     }
-                    
-                    char *eptr;
-                    long long result;
-                    if(isdigit(var1[0]) || ((var1[0] == '-' || var1[0] == '+') && isdigit(var1[1])))
-                        valeur_variable[0] = string2unbounded_int(var1);
-                    if(isdigit(var2[0]) || ((var2[0] == '-' || var2[0] == '+') && isdigit(var2[1])))
-                        valeur_variable[1] = string2unbounded_int(var2);
-
-                    condition_operation(op, var, var1, var2);
+                    else {
+                        valeur_variable[index] = string2unbounded_int(ent);
+                    }
                 }
             }
         }
     }
+    
     fclose(instruc);
 }
 
 int main(int argc, char *argv[]) {
-    /*char *source = malloc(10*sizeof(char));
+    char *source = malloc(10*sizeof(char));
     assert(source != NULL);
-
-    if(strcmp(argv[1], "-i") == 0)
-        source = argv[2];
-    else
-        source = "vide";
-
+    source = "vide";
     char *dest = malloc(10*sizeof(char));
     assert(dest != NULL);
+    dest = "vide";
+
+    if(argv[1] != NULL) {
+        if(strcmp(argv[1], "-i") == 0)
+            source = argv[2];
     
-    if(strcmp(source, "vide") == 0) {
-        if(strcmp(argv[1], "-o") == 0)
-            dest = argv[2];
-        else
-            dest = "vide";
+        if(strcmp(source, "vide") == 0) {
+            if(strcmp(argv[1], "-o") == 0)
+                dest = argv[2];
+        }
+        else {
+            if(argv[3] != NULL) {
+                if(strcmp(argv[3], "-o") == 0)
+                    dest = argv[4];
+            }
+        }
     }
-    else {
-        if(strcmp(argv[3], "-o") == 0)
-            dest = argv[4];
-        else
-            dest = "vide";
-    }*/
-    interpreteur(/*source, dest*/);
+
+    interpreteur(source, dest);
 
     return EXIT_SUCCESS;
 }

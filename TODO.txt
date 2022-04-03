@@ -1,4 +1,3 @@
-- Implementer les nombres negatifs pour la multiplication dans calc
-- ecrire les resultats de l'interpreteur dans un fichier
+- Implementer les nombres negatifs (-entier et +entier)
 - nom de variable plus grand qu'un caractere
 - quotient/modulo

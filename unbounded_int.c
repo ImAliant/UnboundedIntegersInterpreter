@@ -356,6 +356,7 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     int r = 0;
 
     for(cur_b = b.dernier; cur_b != NULL; cur_b = cur_b->precedent) {
+        r = 0;
         if(cur_b->c == '0') {
             cur_res = cur_res->precedent;
             continue;
@@ -367,21 +368,18 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
 
             cur_res = cur_res->precedent;
         }
+        if(r != 0)
+            cur_res->c = r + '0';
         if(cur_b->precedent != NULL) {
             cur_res = temp->precedent;
             temp = temp->precedent;
         }
     }
 
-    if(cur_res->c == '0' && r == 0) {
+    if(cur_res->c == '0') {
         res.premier = cur_res->suivant;
         free(cur_res);
         res.len = a.len+b.len-1;
-    }
-    else if(r != 0){
-        cur_res->c = (char)((cur_res->c - '0' + r) + '0');
-        res.premier = cur_res;
-        res.len = a.len+b.len;
     }
     else {
         res.premier = cur_res;
