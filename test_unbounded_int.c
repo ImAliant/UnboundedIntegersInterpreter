@@ -24,10 +24,10 @@ static void affiche(unbounded_int l){
 int main(void) {
     printf("\n");
     //TEST STRING -> UNBOUNDED_INT:
-    printf("Test char* vers unbounded_int: \n");
+    /*printf("Test char* vers unbounded_int: \n");
     const char *e = malloc(6*sizeof(char));
     assert(e != NULL);
-    e = "72";
+    e = "1150";
     unbounded_int l_1 = string2unbounded_int(e);
     affiche(l_1);
 
@@ -42,14 +42,14 @@ int main(void) {
 
     //TEST LONG LONG -> UNBOUNDED_INT:
     printf("Test long long vers unbounded_int: \n");
-    long long i = 5;
+    long long i = 882;
     unbounded_int l_2 = ll2unbounded_int(i);
     affiche(l_2);
 
     printf("--------------------------------------------------\n\n");
 
     //TEST CMP_UNBOUNDED_INT:
-    /*printf("Test comparaison unbounded_int: \n");
+    printf("Test comparaison unbounded_int: \n");
     printf("%d\n\n", unbounded_int_cmp_unbounded_int(l_1, l_2));
 
     printf("--------------------------------------------------\n\n");
@@ -59,11 +59,19 @@ int main(void) {
     long long j = 128431;
     printf("%d\n\n", unbounded_int_cmp_ll(l_2, j));
 
-    printf("--------------------------------------------------\n\n");
+    printf("--------------------------------------------------\n\n");*/
 
+    const char *e = malloc(6*sizeof(char));
+    assert(e != NULL);
+    e = "1150";
+    unbounded_int l_1 = string2unbounded_int(e);
+    affiche(l_1);
+    long long i = 1150;
+    unbounded_int l_2 = ll2unbounded_int(i);
+    affiche(l_2);
     //TEST ADDITION : 
         //a, b >= 0:
-        printf("Test somme (a, b >= 0): \n");
+        /*printf("Test somme (a, b >= 0): \n");
         unbounded_int add_1 = unbounded_int_somme(l_1, l_2);
         affiche(add_1);
 
@@ -89,7 +97,7 @@ int main(void) {
         affiche(add_4);
 
     printf("--------------------------------------------------\n\n");
-
+    
     //TEST SOUSTRACTION:
         //a, b >= 0:
         printf("Test soustration (a, b >= 0): \n");
@@ -119,7 +127,7 @@ int main(void) {
         unbounded_int sous_4 = unbounded_int_difference(l_1, l_2);
         affiche(sous_4);
 
-    printf("--------------------------------------------------\n\n");
+    printf("--------------------------------------------------\n\n");*/
 
     //TEST MULTIPLICATION:
         //a, b >= 0:
@@ -148,10 +156,10 @@ int main(void) {
         l_1.signe = '-';
         l_2.signe = '+';
         unbounded_int prod_4 = unbounded_int_produit(l_1, l_2);
-        affiche(prod_4);*/
+        affiche(prod_4);
 
     //TEST QUOTIENT:
-        unbounded_int_quotient(l_1, l_2);
+        //unbounded_int_quotient(l_1, l_2);
 
     return EXIT_SUCCESS;
 }

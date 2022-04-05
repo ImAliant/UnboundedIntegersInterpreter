@@ -32,11 +32,12 @@ static void print(char c, char *d) {
     }
     else {
         if(strcmp(d, "vide") == 0) {
-            printf("%c = %s\n", c, unbounded_int2string(valeur_variable[index]));
+            char *s = unbounded_int2string(valeur_variable[index]);
+            printf("%c = %s\n", c, s);
         }
         else {
             FILE *dest = NULL;
-            dest = fopen(d, "a");
+            dest = fopen(d, "w+");
             if(!dest) {
                 perror("fopen");
                 exit(EXIT_FAILURE);
@@ -70,7 +71,7 @@ static void soustration(char variable, char a, char b) {
         printf("Une des variables n'existe pas !\n");
         exit(1);
     }
-    else
+    else 
         valeur_variable[index_variable] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
