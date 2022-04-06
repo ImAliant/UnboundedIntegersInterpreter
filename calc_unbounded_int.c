@@ -165,7 +165,7 @@ void interpreteur(char *source, char *dest) {
     while(fgets(commande_ligne, LINES_LENGTH, instruc) != NULL) {
         char *prt = strstr(commande_ligne, "print");
         if(prt != NULL) {
-            var = commande_ligne[strlen(commande_ligne)-3];
+            var = commande_ligne[strlen(commande_ligne)-3]; //2 ou 3
             print(destination, var);
         }
         else {
