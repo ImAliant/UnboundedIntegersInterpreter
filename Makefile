@@ -1,5 +1,4 @@
 CC=gcc
-CFLAGS=-lm
 DEPS = unbounded_int.h
 OBJ = unbounded_int.o calc_unbounded_int.o
 

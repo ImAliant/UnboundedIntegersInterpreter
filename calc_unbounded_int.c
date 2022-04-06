@@ -24,27 +24,19 @@ static int cherche_index_variable(char variable) {
     return index;
 }
 
-static void print(char c, char *d) {
+static void print(FILE *d, char c) {
     int index = cherche_index_variable(c);
     if(index == -1) {
         printf("Cette variable n'existe pas !");
         exit(1);
     }
     else {
-        if(strcmp(d, "vide") == 0) {
-            char *s = unbounded_int2string(valeur_variable[index]);
-            printf("%c = %s\n", c, s);
+        char* s = unbounded_int2string(valeur_variable[index]);
+        if (!d) {
+            perror("fopen");
+            exit(EXIT_FAILURE);
         }
-        else {
-            FILE *dest = NULL;
-            dest = fopen(d, "w+");
-            if(!dest) {
-                perror("fopen");
-                exit(EXIT_FAILURE);
-            }
-            fprintf(dest, "%c = %s\n", c, unbounded_int2string(valeur_variable[index]));
-            fclose(dest);
-        }
+        fprintf(d, "%c = %s\n", c, s);
     }
 }
 
@@ -134,6 +126,8 @@ static void condition_operation(char op, char var, char *var1, char *var2) {
 
 void interpreteur(char *source, char *dest) {
     FILE *instruc = NULL;
+    FILE* destination = NULL;
+
     if(strcmp(source, "vide") != 0) {
         instruc = fopen(source, "r");
         if(instruc == NULL) {
@@ -143,6 +137,16 @@ void interpreteur(char *source, char *dest) {
     }
     else
         instruc = stdin;
+
+    if (strcmp(dest, "vide") != 0) {
+        destination = fopen(dest, "w+");
+        if (destination == NULL) {
+            perror("fopen");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+        destination = stdout;
 
     char var = 0;
     char * entier = malloc(20*sizeof(char));
@@ -155,23 +159,19 @@ void interpreteur(char *source, char *dest) {
     valeur_variable[1] = string2unbounded_int("0");
     int i = 2;
 
-    char *commande_ligne = malloc(1024*sizeof(char));
+    char *commande_ligne = malloc(LINES_LENGTH*sizeof(char));
     assert(commande_ligne != NULL);
 
-    while(fgets(commande_ligne, 1023, instruc) != NULL) {
+    while(fgets(commande_ligne, LINES_LENGTH, instruc) != NULL) {
         char *prt = strstr(commande_ligne, "print");
         if(prt != NULL) {
-            var = commande_ligne[strlen(commande_ligne)-2];
-            print(var, dest);
-        }
-        char *stop = strstr(commande_ligne, "STOP");
-        if(stop != NULL) {
-            fclose(instruc);
+            var = commande_ligne[strlen(commande_ligne)-3];
+            print(destination, var);
         }
         else {
-            char * var1 = malloc(20*sizeof(char));
+            char * var1 = malloc(30*sizeof(char));
             assert(var1 != NULL);
-            char * var2 = malloc(20*sizeof(char));
+            char * var2 = malloc(30*sizeof(char));
             assert(var2 != NULL);
             if(sscanf(commande_ligne, "%c = %s %c %s", &var, var1, &op, var2) == 4) {
                 if(cherche_index_variable(var) == -1) {
@@ -208,10 +208,11 @@ void interpreteur(char *source, char *dest) {
     }
     
     fclose(instruc);
+    fclose(destination);
 }
 
 int main(int argc, char *argv[]) {
-    char *source = malloc(10*sizeof(char));
+    char* source = malloc(10 * sizeof(char));
     assert(source != NULL);
     source = "vide";
     char *dest = malloc(10*sizeof(char));

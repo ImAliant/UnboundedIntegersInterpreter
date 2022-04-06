@@ -6,7 +6,12 @@
 
 PROBLEME CONNU : 
     - chiffre precedent dans les certaines opérations qui sont non vide.
-    - Ecriture dans le fichier qui supprime la ligne d'avant.
+    - caractere selectionnné entre deux pc different.
+    - Difference crée une SEGMENTATION FAULT
+    - ERREUR TROUVE SUR LA DIFFERENCE.
+
+- Multiplication fonctionne très bien (en tout cas a l'affichage)
+    -> Peut être vérifié l'allocation d'un nouveau chiffre en trop qui perturbe la soustration.
 
 - Implementer les nombres negatifs (-entier et +entier)
 - nom de variable plus grand qu'un caractere
