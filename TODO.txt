@@ -4,15 +4,14 @@
            -> Donc utilisé fonction cmp_unbounded_int qui compare deux nombres.
     -> Ensuite implementer les calcules avec les autres signes.
 
-PROBLEME CONNU : 
-    - chiffre precedent dans les certaines opérations qui sont non vide.
-    - caractere selectionnné entre deux pc different.
-    - Difference crée une SEGMENTATION FAULT
-    - ERREUR TROUVE SUR LA DIFFERENCE.
 
-- Multiplication fonctionne très bien (en tout cas a l'affichage)
-    -> Peut être vérifié l'allocation d'un nouveau chiffre en trop qui perturbe la soustration.
+PROBLEME CONNU : 
+    - caractere selectionnné entre deux pc different.
+    - Problème dans la comparaison de deux unbounded_int dans cmp_unbounded_int.
+        -> Si le nombre est trop grand, atoi donne un resultat ne correspondant pas a la réel valeur
+           du unbounded_int.
 
 - Implementer les nombres negatifs (-entier et +entier)
-- nom de variable plus grand qu'un caractere
+- Nombre de variable pas limité.
+- Nom de variable plus grand qu'un caractere
 - quotient/modulo

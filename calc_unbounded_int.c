@@ -10,10 +10,10 @@
 #define LINES_LENGTH 1024
 #define VARIABLES 50
 
-char variables[VARIABLES];
-unbounded_int valeur_variable[VARIABLES];
+/*char variables[VARIABLES];
+unbounded_int valeur_variable[VARIABLES];*/
 
-static int cherche_index_variable(char variable) {
+static int cherche_index_variable(char variable, char* variables) {
     int index = -1;
     for(int i=0; i<VARIABLES; i++) {
         if(variables[i] == variable) {
@@ -24,8 +24,8 @@ static int cherche_index_variable(char variable) {
     return index;
 }
 
-static void print(FILE *d, char c) {
-    int index = cherche_index_variable(c);
+static void print(FILE *d, char c, char* variables, unbounded_int* valeur_variable) {
+    int index = cherche_index_variable(c, variables);
     if(index == -1) {
         printf("Cette variable n'existe pas !");
         exit(1);
@@ -40,10 +40,10 @@ static void print(FILE *d, char c) {
     }
 }
 
-static void addition(char variable, char a, char b) {
-    int index_variable = cherche_index_variable(variable);
-    int index_a = cherche_index_variable(a);
-    int index_b = cherche_index_variable(b);
+static void addition(char variable, char a, char b, char* variables, unbounded_int* valeur_variable) {
+    int index_variable = cherche_index_variable(variable, variables);
+    int index_a = cherche_index_variable(a, variables);
+    int index_b = cherche_index_variable(b, variables);
 
     if(index_variable == -1 || index_a == -1 || index_b == -1) {
         printf("Une des variables n'existe pas !\n");
@@ -54,10 +54,10 @@ static void addition(char variable, char a, char b) {
     }
 }
 
-static void soustration(char variable, char a, char b) {
-    int index_variable = cherche_index_variable(variable);
-    int index_a = cherche_index_variable(a);
-    int index_b = cherche_index_variable(b);
+static void soustration(char variable, char a, char b, char* variables, unbounded_int* valeur_variable) {
+    int index_variable = cherche_index_variable(variable, variables);
+    int index_a = cherche_index_variable(a, variables);
+    int index_b = cherche_index_variable(b, variables);
 
     if(index_variable == -1 || index_a == -1 || index_b == -1) {
         printf("Une des variables n'existe pas !\n");
@@ -67,10 +67,10 @@ static void soustration(char variable, char a, char b) {
         valeur_variable[index_variable] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
-static void multiplication(char variable, char a, char b) {
-    int index_variable = cherche_index_variable(variable);
-    int index_a = cherche_index_variable(a);
-    int index_b = cherche_index_variable(b);
+static void multiplication(char variable, char a, char b, char* variables, unbounded_int* valeur_variable) {
+    int index_variable = cherche_index_variable(variable, variables);
+    int index_a = cherche_index_variable(a, variables);
+    int index_b = cherche_index_variable(b, variables);
 
     if(index_variable == -1 || index_a == -1 || index_b == -1) {
         printf("Une des variables n'existe pas !\n");
@@ -85,38 +85,38 @@ static void multiplication(char variable, char a, char b) {
         
 }
 
-static void condition_operation(char op, char var, char *var1, char *var2) {
+static void condition_operation(char op, char var, char* var1, char* var2, char* variables, unbounded_int* valeur_variable) {
     switch (op)
     {
     case '+':
         if(isdigit(var1[0]) && isdigit(var2[0]))
-            addition(var, variables[0], variables[1]);
+            addition(var, variables[0], variables[1], variables, valeur_variable);
         else if(isdigit(var1[0]) && !isdigit(var2[0]))
-            addition(var, variables[0], var2[0]);
+            addition(var, variables[0], var2[0], variables, valeur_variable);
         else if(!isdigit(var1[0]) && isdigit(var2[0]))
-            addition(var, var1[0], variables[1]);
+            addition(var, var1[0], variables[1], variables, valeur_variable);
         else
-            addition(var, var1[0], var2[0]);
+            addition(var, var1[0], var2[0], variables, valeur_variable);
         break;
     case '-':
         if(isdigit(var1[0]) && isdigit(var2[0]))
-            soustration(var, variables[0], variables[1]);
+            soustration(var, variables[0], variables[1], variables, valeur_variable);
         else if(isdigit(var1[0]) && !isdigit(var2[0]))
-            soustration(var, variables[0], var2[0]);
+            soustration(var, variables[0], var2[0], variables, valeur_variable);
         else if(!isdigit(var1[0]) && isdigit(var2[0]))
-            soustration(var, var1[0], variables[1]);
+            soustration(var, var1[0], variables[1], variables, valeur_variable);
         else
-            soustration(var, var1[0], var2[0]);
+            soustration(var, var1[0], var2[0], variables, valeur_variable);
         break;
     case '*':
         if(isdigit(var1[0]) && isdigit(var2[0]))
-            multiplication(var, variables[0], variables[1]);
+            multiplication(var, variables[0], variables[1], variables, valeur_variable);
         else if(isdigit(var1[0]) && !isdigit(var2[0]))
-            multiplication(var, variables[0], var2[0]);
+            multiplication(var, variables[0], var2[0], variables, valeur_variable);
         else if(!isdigit(var1[0]) && isdigit(var2[0]))
-            multiplication(var, var1[0], variables[1]);
+            multiplication(var, var1[0], variables[1], variables, valeur_variable);
         else
-            multiplication(var, var1[0], var2[0]);
+            multiplication(var, var1[0], var2[0], variables, valeur_variable);
         break;
     default:
         printf("Cette operation n'existe pas !");
@@ -127,6 +127,11 @@ static void condition_operation(char op, char var, char *var1, char *var2) {
 void interpreteur(char *source, char *dest) {
     FILE *instruc = NULL;
     FILE* destination = NULL;
+
+    char* variables = malloc(10 * sizeof(char));
+    assert(variables != NULL);
+    unbounded_int *valeur_variable = malloc(10 * sizeof(unbounded_int));
+    assert(valeur_variable != NULL);
 
     if(strcmp(source, "vide") != 0) {
         instruc = fopen(source, "r");
@@ -149,8 +154,6 @@ void interpreteur(char *source, char *dest) {
         destination = stdout;
 
     char var = 0;
-    char * entier = malloc(20*sizeof(char));
-    assert(entier != NULL);
     char op = 0;
 
     variables[0] = 'z'; //valeur temp 1
@@ -166,7 +169,7 @@ void interpreteur(char *source, char *dest) {
         char *prt = strstr(commande_ligne, "print");
         if(prt != NULL) {
             var = commande_ligne[strlen(commande_ligne)-3]; //2 ou 3
-            print(destination, var);
+            print(destination, var, variables, valeur_variable);
         }
         else {
             char * var1 = malloc(30*sizeof(char));
@@ -174,26 +177,24 @@ void interpreteur(char *source, char *dest) {
             char * var2 = malloc(30*sizeof(char));
             assert(var2 != NULL);
             if(sscanf(commande_ligne, "%c = %s %c %s", &var, var1, &op, var2) == 4) {
-                if(cherche_index_variable(var) == -1) {
+                if(cherche_index_variable(var, variables) == -1) {
                     variables[i] = var;
                     valeur_variable[i] = string2unbounded_int("0");
                     i++;
                 }
-                    
-                char *eptr;
-                long long result;
+                
                 if(isdigit(var1[0]) || ((var1[0] == '-' || var1[0] == '+') && isdigit(var1[1])))
                     valeur_variable[0] = string2unbounded_int(var1);
                 if(isdigit(var2[0]) || ((var2[0] == '-' || var2[0] == '+') && isdigit(var2[1])))
                     valeur_variable[1] = string2unbounded_int(var2);
 
-                condition_operation(op, var, var1, var2);
+                condition_operation(op, var, var1, var2, variables, valeur_variable);
             }
             else {
                 char *ent = malloc(30*sizeof(char));
                 assert(ent != NULL);
                 if(sscanf(commande_ligne, "%c = %s", &var, ent) == 2) {
-                    int index = cherche_index_variable(var);
+                    int index = cherche_index_variable(var, variables);
                     if(index == -1) {
                         variables[i] = var;
                         valeur_variable[i] = string2unbounded_int(ent);
@@ -212,7 +213,12 @@ void interpreteur(char *source, char *dest) {
 }
 
 int main(int argc, char *argv[]) {
-    char* source = malloc(10 * sizeof(char));
+    /*variables = malloc(sizeof(char));
+    assert(variables != NULL);
+    valeur_variable = malloc(10 * sizeof(unbounded_int));
+    assert(valeur_variable != NULL);*/
+
+    /*char* source = malloc(10 * sizeof(char));
     assert(source != NULL);
     source = "vide";
     char *dest = malloc(10*sizeof(char));
@@ -235,7 +241,17 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    interpreteur(source, dest);
+    interpreteur(source, dest);*/
+
+    /*char* variables = malloc(10 * sizeof(char));
+
+    for (int i = 0; i < sizeof(variables) / sizeof(variables[0]); i++) {
+        variables[i] = 97 + i;
+    }
+    for (int i = 0; i < sizeof(variables) / sizeof(variables[0]); i++) {
+        printf("%c, ", variables[i]);
+    }
+    printf("\n");*/
 
     return EXIT_SUCCESS;
 }

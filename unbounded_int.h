@@ -14,8 +14,6 @@ typedef struct unbounded_int{
     chiffre *dernier; /* pointeur vers le dernier élément de la liste */
 } unbounded_int;
 
-unbounded_int init();
-void ins_fin_liste(unbounded_int liste, char c);
 unbounded_int string2unbounded_int(const char *e);
 unbounded_int ll2unbounded_int(long long i);
 char *unbounded_int2string(unbounded_int i);
