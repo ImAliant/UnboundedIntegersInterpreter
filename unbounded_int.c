@@ -116,15 +116,9 @@ int unbounded_int_cmp_unbounded_int(unbounded_int a, unbounded_int b) {
 }
 
 int unbounded_int_cmp_ll(unbounded_int a, long long b) {
-    char *sa = malloc(a.len*sizeof(char));
-    assert(sa != NULL);
-    sa = unbounded_int2string(a);
+    unbounded_int uib = ll2unbounded_int(b);
 
-    long long lla = atoll(sa);
-
-    if(lla < b) return -1;
-    else if(lla == b) return 0;
-    else return 1;
+    unbounded_int_cmp_unbounded_int(a, uib);
 }
 
 static int getSizeChaine(unbounded_int i) {
@@ -231,7 +225,9 @@ unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
 unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
-    if(a.signe == '+' && b.signe == '+') {
+    int diff = abs(a.len - b.len);
+
+    if (a.signe == '+' && b.signe == '+') {
         int cmp = unbounded_int_cmp_unbounded_int(a, b);
         if (cmp == 1 || cmp == 0) {
             chiffre* cur_a = a.dernier;
@@ -245,12 +241,12 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
 
             int r = 0;
 
-            while(cur_a != NULL && cur_b != NULL) {
+            while (cur_a != NULL && cur_b != NULL) {
                 int calc = (cur_a->c - '0') - (cur_b->c - '0') + r;
                 cur->c = (calc >= 0) ? (char)(calc + '0') : (char)((calc + 10) + '0');
                 r = (calc >= 0) ? 0 : -1;
 
-                if(cur_a->precedent != NULL && cur_b->precedent != NULL) {
+                if (cur_a->precedent != NULL && cur_b->precedent != NULL) {
                     cur->precedent = malloc(sizeof(chiffre));
                     assert(cur->precedent);
                     cur->precedent->suivant = cur;
@@ -262,19 +258,20 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
             }
 
             if (a.len > b.len) {
-                while (cur_a != NULL) {
+                while (cur_a != NULL && diff > 0) {
                     cur->precedent = malloc(sizeof(chiffre));
                     assert(cur->precedent);
                     cur->precedent->suivant = cur;
                     cur = cur->precedent;
-                    cur->c = cur_a->c + r;
+                    cur->c = (char)(((cur_a->c - '0') + r) + '0');
                     r = 0;
 
                     cur_a = cur_a->precedent;
+                    diff--;
                 }
             }
-            if(a.len < b.len){
-                while (cur_b != NULL) {
+            if (a.len < b.len) {
+                while (cur_b != NULL && diff > 0) {
                     cur->precedent = malloc(sizeof(chiffre));
                     assert(cur->precedent);
                     cur->precedent->suivant = cur;
@@ -283,6 +280,7 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
                     r = 0;
 
                     cur_b = cur_b->precedent;
+                    diff--;
                 }
             }
 
@@ -316,7 +314,7 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
             res.signe = '-';
         }
     }
-    
+
     return res;
 }
 
@@ -391,16 +389,22 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     return res;
 }
 
-/*static char * binaire(char *c) {
+/*static int power(int x, int y) {
+    if (y == 0) return 1;
+    else return power(x, y - 1) * x;
+}
+
+static char* dec2bin(unbounded_int a) {
+    char* c = unbounded_int2string(a);
     long long nbr = atoi(c);
     int r = 0;
     int ord = 0;
 
-    char *res = malloc(16*sizeof(char)+1);
+    char* res = malloc(63 * sizeof(char));
 
-    while(nbr != 0) {
-        int reste = nbr%2;
-        int p = (int)(pow(10, ord));
+    while (nbr != 0) {
+        int reste = nbr % 2;
+        int p = power(10, ord);
         r += reste * p;
         ord += 1;
         nbr /= 2;
@@ -409,6 +413,22 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     sprintf(res, "%d", r);
 
     return res;
+}
+
+static unbounded_int bin2dec(char* s) {
+    int num = atoi(s);
+    int decimal_num = 0;
+    int base = 1;
+    int rem;
+    while (num > 0)
+    {
+        rem = num % 10;
+        decimal_num = decimal_num + rem * base;
+        num = num / 10;  
+        base = base * 2;
+    }
+
+    return ll2unbounded_int(rem);
 }
 
 static int get_nb_bits(int nombre) {
@@ -421,5 +441,10 @@ static int get_nb_bits(int nombre) {
     return bits;
 }
 
-unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {}*/
+unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {
+    char* sa = dec2bin(a);
+    char* sb = dec2bin(b);
+
+    char* temp = malloc(10 * sizeof(char));
+}*/
 
