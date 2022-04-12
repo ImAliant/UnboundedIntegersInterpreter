@@ -89,7 +89,9 @@ char *unbounded_int2string(unbounded_int i) {
         index++;
         cur = cur->suivant;
     }
-    res[i.len] = '\0';
+    if (res[0] == '-')
+        res[i.len + 1] = '\0';
+    else res[i.len] = '\0';
 
     return res;
 }
