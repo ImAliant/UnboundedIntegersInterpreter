@@ -10,21 +10,18 @@
 #define LINES_LENGTH 1024
 #define VARIABLES 50
 
-//char variables[VARIABLES];
-char* variables[VARIABLES];
+char variables[VARIABLES];
 unbounded_int valeur_variable[VARIABLES];
 
-/*static int cherche_index_variable(char variable) {
-    int index = -1;
+static int cherche_index_variable(char variable) {
     for(int i=0; i<VARIABLES; i++) {
         if(variables[i] == variable) {
-            index = i;
-            break;
+            return i;
         }
     }
-    return index;
-}*/
-static int cherche_index_variable(char* variable) {
+    return -1;
+}
+/*static int cherche_index_variable(char* variable) {
     int index = -1;
     for (int i = 0; i < VARIABLES && variables[i] != NULL; i++) {
         if (strcmp(variables[i], variable) == 0) {
@@ -33,9 +30,9 @@ static int cherche_index_variable(char* variable) {
         }
     }
     return index;
-}
+}*/
 
-/*static void print(FILE* d, char c) {
+static void print(FILE* d, char c) {
     int index = cherche_index_variable(c);
     if(index == -1) {
         printf("Cette variable n'existe pas !");
@@ -49,8 +46,8 @@ static int cherche_index_variable(char* variable) {
         }
         fprintf(d, "%c = %s\n", c, s);
     }
-}*/
-static void print(FILE* d, char* c) {
+}
+/*static void print(FILE* d, char* c) {
     int index = cherche_index_variable(c);
     if (index == -1) {
         printf("Cette variables n'existe pas !");
@@ -64,9 +61,9 @@ static void print(FILE* d, char* c) {
         }
         fprintf(d, "%s = %s\n", c, s);
     }
-}
+}*/
 
-/*static void addition(char variable, char a, char b) {
+static void addition(char variable, char a, char b) {
     int index_variable = cherche_index_variable(variable);
     int index_a = cherche_index_variable(a);
     int index_b = cherche_index_variable(b);
@@ -78,8 +75,8 @@ static void print(FILE* d, char* c) {
     else {
         valeur_variable[index_variable] = unbounded_int_somme(valeur_variable[index_a], valeur_variable[index_b]);
     }
-}*/
-static void addition(char* var, char* a, char* b) {
+}
+/*static void addition(char* var, char* a, char* b) {
     int index_variable = cherche_index_variable(var);
     int index_a = cherche_index_variable(a);
     int index_b = cherche_index_variable(b);
@@ -90,9 +87,9 @@ static void addition(char* var, char* a, char* b) {
     }
     
     valeur_variable[index_variable] = unbounded_int_somme(valeur_variable[index_a], valeur_variable[index_b]);
-}
+}*/
 
-/*static void soustration(char variable, char a, char b) {
+static void soustration(char variable, char a, char b) {
     int index_variable = cherche_index_variable(variable);
     int index_a = cherche_index_variable(a);
     int index_b = cherche_index_variable(b);
@@ -103,8 +100,8 @@ static void addition(char* var, char* a, char* b) {
     }
     else 
         valeur_variable[index_variable] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
-}*/
-static void soustraction(char* var, char* a, char* b) {
+}
+/*static void soustraction(char* var, char* a, char* b) {
     int index_variable = cherche_index_variable(var);
     int index_a = cherche_index_variable(a);
     int index_b = cherche_index_variable(b);
@@ -115,9 +112,9 @@ static void soustraction(char* var, char* a, char* b) {
     }
     
     valeur_variable[index_variable] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
-}
+}*/
 
-/*static void multiplication(char variable, char a, char b) {
+static void multiplication(char variable, char a, char b) {
     int index_variable = cherche_index_variable(variable);
     int index_a = cherche_index_variable(a);
     int index_b = cherche_index_variable(b);
@@ -133,8 +130,8 @@ static void soustraction(char* var, char* a, char* b) {
             valeur_variable[index_variable] = unbounded_int_produit(valeur_variable[index_a], valeur_variable[index_b]);
     }
         
-}*/
-static void multiplication(char* var, char* a, char* b) {
+}
+/*static void multiplication(char* var, char* a, char* b) {
     int index_variable = cherche_index_variable(var);
     int index_a = cherche_index_variable(a);
     int index_b = cherche_index_variable(b);
@@ -148,9 +145,9 @@ static void multiplication(char* var, char* a, char* b) {
         valeur_variable[index_variable] = unbounded_int_produit(valeur_variable[index_b], valeur_variable[index_a]);
     else
         valeur_variable[index_variable] = unbounded_int_produit(valeur_variable[index_a], valeur_variable[index_b]);
-}
+}*/
 
-/*
+
 static void condition_operation(char op, char var, char* var1, char* var2) {
     switch (op)
     {
@@ -188,8 +185,8 @@ static void condition_operation(char op, char var, char* var1, char* var2) {
         printf("Cette operation n'existe pas !");
         break;
     }
-}*/
-static void condition_operation(char op, char* var, char* var1, char* var2) {
+}
+/*static void condition_operation(char op, char* var, char* var1, char* var2) {
     switch (op)
     {
     case '+':
@@ -226,9 +223,8 @@ static void condition_operation(char op, char* var, char* var1, char* var2) {
         printf("Cette operation n'existe pas !");
         break;
     }
-}
+}*/
 
-/*
 void interpreteur(char *source, char *dest) {
     FILE *instruc = NULL;
     FILE* destination = NULL;
@@ -268,7 +264,7 @@ void interpreteur(char *source, char *dest) {
     while(fgets(commande_ligne, LINES_LENGTH, instruc) != NULL) {
         char *prt = strstr(commande_ligne, "print");
         if(prt != NULL) {
-            var = commande_ligne[strlen(commande_ligne)-3]; //2 ou 3
+            var = commande_ligne[strlen(commande_ligne)-2]; //2 ou 3
             print(destination, var);
         }
         else {
@@ -317,9 +313,9 @@ void interpreteur(char *source, char *dest) {
     
     fclose(instruc);
     fclose(destination);
-}*/
+}
 
-void interpreteur(char* source, char* dest) {
+/*void interpreteur(char* source, char* dest) {
     FILE* instruc = NULL;
     FILE* destination = NULL;
 
@@ -408,7 +404,7 @@ void interpreteur(char* source, char* dest) {
 
     fclose(instruc);
     fclose(destination);
-}
+}*/
 
 int main(int argc, char *argv[]) {
     char* source = malloc(10 * sizeof(char));
