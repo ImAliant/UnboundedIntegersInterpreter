@@ -1,17 +1,6 @@
-- Reflechir sur la somme, difference, produit
-    -> Addition de deux nombres positifs
-    -> Soustraction de deux nombres positifs avec a >= b
-           -> Donc utilisé fonction cmp_unbounded_int qui compare deux nombres.
-    -> Ensuite implementer les calcules avec les autres signes.
-
-
 PROBLEME CONNU : 
-    - caractere selectionnné entre deux pc different.
-    - Problème dans la comparaison de deux unbounded_int dans cmp_unbounded_int.
-        -> Si le nombre est trop grand, atoi donne un resultat ne correspondant pas a la réel valeur
-           du unbounded_int.
+    - Quand dividende est trop grand trop grande complexité.
 
 - Implementer les nombres negatifs (-entier et +entier)
 - Nombre de variable pas limité.
 - Nom de variable plus grand qu'un caractere
-- quotient/modulo
