@@ -1,5 +1,6 @@
 PROBLEME CONNU : 
     - Quand dividende est trop grand trop grande complexité.
+    - Probleme sur les valeurs 
 
 - Implementer les nombres negatifs (-entier et +entier)
 - Nombre de variable pas limité.

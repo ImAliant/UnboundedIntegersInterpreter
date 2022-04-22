@@ -1,3 +1,10 @@
-a = 15465
-a = a * 2
-print a
+alex = 897676764344676545687876565
+alex = alex * alex
+alex = alex - 7867656443555498966543
+beth = 98987676565
+beth = 3 * beth
+alex = alex - beth
+print alex
+print beth
+celine = alex - -565543443423
+print celine
