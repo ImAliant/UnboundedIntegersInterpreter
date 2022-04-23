@@ -123,6 +123,7 @@ int unbounded_int_cmp_ll(unbounded_int a, long long b) {
     unbounded_int_cmp_unbounded_int(a, uib);
 }
 
+// Retourne le nombre d'élément dans l'unbounded_int donné en argument.
 static int getSizeChaine(unbounded_int i) {
     int count = 0;
     chiffre *cur = i.premier;
@@ -358,7 +359,79 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
 unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
-    chiffre * dern = malloc(sizeof(chiffre));
+    //MEILLEURE MEMOIRE MAIS NE FONCTIONNE PAS POUR LES GRANDS NOMBRES
+
+    chiffre* dern = malloc(sizeof(chiffre));
+    assert(dern != NULL);
+    dern->suivant = NULL;
+    dern->precedent = NULL;
+
+    int n = a.len;
+    int m = b.len;
+    int len_max = n + m;
+
+    res.dernier = dern;
+
+    for (int i = 0; i < len_max - 1; i++) {
+        dern->c = '0';
+        if (i + 1 < len_max - 1) {
+            dern->precedent = malloc(sizeof(chiffre));
+            assert(dern->precedent != NULL);
+            dern->precedent->suivant = dern;
+            dern = dern->precedent;
+        }
+    }
+
+    res.premier = dern;
+
+    chiffre* cur_a;
+    chiffre* cur_b;
+    chiffre* cur_res = res.dernier;
+
+    chiffre* temp = res.dernier;
+    int r = 0;
+
+    for (cur_b = b.dernier; cur_b != NULL; cur_b = cur_b->precedent) {
+        r = 0;
+        if (cur_b->c == '0') {
+            cur_res = cur_res->precedent;
+            temp = temp->precedent;
+            continue;
+        }
+        for (cur_a = a.dernier; cur_a != NULL; cur_a = cur_a->precedent) {
+            int v = (cur_res->c - '0') + (cur_a->c - '0') * (cur_b->c - '0') + r;
+            cur_res->c = (char)((v % 10) + '0');
+            r = v / 10;
+
+            cur_res = cur_res->precedent;
+        }
+        if (cur_b->precedent != NULL) {
+            if (r != 0)
+                cur_res->c = (char)(r + '0');
+            cur_res = temp->precedent;
+            temp = temp->precedent;
+        }
+    }
+
+    if (r != 0) {
+        res.premier->precedent = malloc(sizeof(chiffre));
+        assert(res.premier->precedent != NULL);
+        res.premier->precedent->suivant = res.premier;
+        res.premier = res.premier->precedent;
+        res.len = len_max;
+    }
+    else
+        res.len = len_max - 1;
+
+    if ((a.signe == '+' && b.signe == '+') || (a.signe == '-' && b.signe == '-'))
+        res.signe = '+';
+    else res.signe = '-';
+
+    return res;
+
+    //FONCTIONNE POUR LES GRANDS NOMBRES
+
+    /*chiffre* dern = malloc(sizeof(chiffre));
     assert(dern != NULL);
     dern->suivant = NULL;
     dern->precedent = NULL;
@@ -423,6 +496,18 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         res.signe = '+';
     else res.signe = '-';
 
+    return res;*/
+}
+
+unbounded_int unbounded_int_puissance(unbounded_int x, unbounded_int y) {
+    unbounded_int res;
+    unbounded_int temp = x;
+    unbounded_int i = ll2unbounded_int(1);
+    while(unbounded_int_cmp_unbounded_int(i, y) != 0) {
+        temp = unbounded_int_produit(temp, x);
+        i = unbounded_int_somme(i, ll2unbounded_int(1));
+    }
+    res = temp;
     return res;
 }
 
@@ -430,14 +515,27 @@ unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
     unbounded_int temp_a = a;
+    unbounded_int temp_b = b;
+
+    if (temp_a.signe == '-')
+        temp_a.signe = '+';
+    if (temp_b.signe == '-')
+        temp_b.signe = '+';
     int compteur = -1;
-    
+
+    if (unbounded_int_cmp_ll(b, 0) == 0) {
+        printf("Le diviseur est égale à 0 !!");
+        exit(EXIT_FAILURE);
+    }
+
     while (temp_a.signe != '-' || unbounded_int_cmp_ll(temp_a, 0) == 0) {
-        temp_a = unbounded_int_difference(temp_a, b);
+        temp_a = unbounded_int_difference(temp_a, temp_b);
         compteur++;
     }
 
     res = ll2unbounded_int(compteur);
+    if ((a.signe == '-' && b.signe == '+') || (a.signe == '+' && b.signe == '-'))
+        res.signe = '-';
 
     return res;
 }
@@ -446,12 +544,25 @@ unbounded_int unbounded_int_modulo(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
     unbounded_int temp_a = a;
-    
+    unbounded_int temp_b = b;
+
+    temp_a.signe = '+';
+    temp_b.signe = '+';
+   
     while (temp_a.signe != '-' || unbounded_int_cmp_ll(temp_a, 0) == 0) {
-        if (unbounded_int_cmp_ll(temp_a, 0) != 0)
+        if (unbounded_int_cmp_ll(temp_a, 0) == 1)
             res = temp_a;
-        temp_a = unbounded_int_difference(temp_a, b);
+        if (unbounded_int_cmp_unbounded_int(temp_a, temp_b) == -1)
+            break;
+        temp_a = unbounded_int_difference(temp_a, temp_b);
     }
+
+    if (a.signe == '-' && b.signe == '-')
+        res.signe = '-';
+    else if (a.signe == '+' && b.signe == '-')
+        res = unbounded_int_difference(res, temp_b);
+    else if (a.signe == '-' && b.signe == '+')
+        res = unbounded_int_difference(temp_b, res);
 
     return res;
 }

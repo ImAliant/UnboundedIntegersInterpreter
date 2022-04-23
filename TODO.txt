@@ -1,7 +1,1 @@
-PROBLEME CONNU : 
-    - Quand dividende est trop grand trop grande complexité.
-    - Probleme sur les valeurs 
-
-- Implementer les nombres negatifs (-entier et +entier)
-- Nombre de variable pas limité.
-- Nom de variable plus grand qu'un caractere
+- Modifier produit pour ne crer que n+m-1 0 et cr�er un nouvelle remplacement si r != 0.
