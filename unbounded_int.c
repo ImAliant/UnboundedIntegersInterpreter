@@ -123,7 +123,7 @@ int unbounded_int_cmp_ll(unbounded_int a, long long b) {
     unbounded_int_cmp_unbounded_int(a, uib);
 }
 
-// Retourne le nombre d'élément dans l'unbounded_int donné en argument.
+// Retourne le nombre d'ï¿½lï¿½ment dans l'unbounded_int donnï¿½ en argument.
 static int getSizeChaine(unbounded_int i) {
     int count = 0;
     chiffre *cur = i.premier;
@@ -361,7 +361,7 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
 
     //MEILLEURE MEMOIRE MAIS NE FONCTIONNE PAS POUR LES GRANDS NOMBRES
 
-    chiffre* dern = malloc(sizeof(chiffre));
+    /*chiffre* dern = malloc(sizeof(chiffre));
     assert(dern != NULL);
     dern->suivant = NULL;
     dern->precedent = NULL;
@@ -403,8 +403,10 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
             cur_res->c = (char)((v % 10) + '0');
             r = v / 10;
 
-            cur_res = cur_res->precedent;
+            if(cur_res->precedent != NULL)
+                cur_res = cur_res->precedent;
         }
+        
         if (cur_b->precedent != NULL) {
             if (r != 0)
                 cur_res->c = (char)(r + '0');
@@ -414,10 +416,12 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     }
 
     if (r != 0) {
-        res.premier->precedent = malloc(sizeof(chiffre));
-        assert(res.premier->precedent != NULL);
-        res.premier->precedent->suivant = res.premier;
-        res.premier = res.premier->precedent;
+        dern->precedent = malloc(sizeof(chiffre));
+        assert(dern->precedent != NULL);
+        dern->precedent->suivant = dern;
+        dern = dern->precedent;
+        dern->c = (char)(r + '0');
+        res.premier = dern;
         res.len = len_max;
     }
     else
@@ -427,11 +431,11 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         res.signe = '+';
     else res.signe = '-';
 
-    return res;
+    return res;*/
 
     //FONCTIONNE POUR LES GRANDS NOMBRES
 
-    /*chiffre* dern = malloc(sizeof(chiffre));
+    chiffre* dern = malloc(sizeof(chiffre));
     assert(dern != NULL);
     dern->suivant = NULL;
     dern->precedent = NULL;
@@ -496,7 +500,7 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         res.signe = '+';
     else res.signe = '-';
 
-    return res;*/
+    return res;
 }
 
 unbounded_int unbounded_int_puissance(unbounded_int x, unbounded_int y) {
@@ -524,7 +528,7 @@ unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {
     int compteur = -1;
 
     if (unbounded_int_cmp_ll(b, 0) == 0) {
-        printf("Le diviseur est égale à 0 !!");
+        printf("Le diviseur est ï¿½gale ï¿½ 0 !!");
         exit(EXIT_FAILURE);
     }
 
