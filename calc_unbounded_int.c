@@ -356,7 +356,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    interpreteur(source, dest);
+    interpreteur("source.txt", dest);
 
     return EXIT_SUCCESS;
 }

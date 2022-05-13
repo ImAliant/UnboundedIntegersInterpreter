@@ -433,6 +433,8 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
 
     return res;*/
 
+    //ACTUELLEMENT UTILISE
+    //FONCTIONNE UNE FOIS
     //FONCTIONNE POUR LES GRANDS NOMBRES
 
     chiffre* dern = malloc(sizeof(chiffre));
