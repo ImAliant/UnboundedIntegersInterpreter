@@ -63,155 +63,166 @@ int main(void) {
 
     printf("\033[31m*--------------------------------------------------*\033[37m\n\n");
 
+    char *n_1 = malloc(4 * sizeof(char) + 1);
+    assert(n_1 != NULL);
+    n_1 = "1457";
+    char *n_2 = malloc(2 * sizeof(char) + 1);
+    assert(n_2 != NULL);
+    n_2 = "29";
+
+    unbounded_int ui_1 = string2unbounded_int(n_1);
+    unbounded_int ui_2 = string2unbounded_int(n_2);
+
+
     //TEST ADDITION : 
         //a, b >= 0:
-        printf("\033[32mTEST SOMME (a, b >= 0):\033[37m \n");
-        unbounded_int add_1 = unbounded_int_somme(l_1, l_2);
+        printf("\033[32mTEST SOMME (a, b >= 0): (%s + %s)\033[37m \n", n_1, n_2);
+        unbounded_int add_1 = unbounded_int_somme(ui_1, ui_2);
         affiche(add_1);
 
         //a, b <= 0:
-        printf("\033[32mTEST SOMME (a, b <= 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '-';
-        unbounded_int add_2 = unbounded_int_somme(l_1, l_2);
+        printf("\033[32mTEST SOMME (a, b <= 0): (%s + %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '-';
+        unbounded_int add_2 = unbounded_int_somme(ui_1, ui_2);
         affiche(add_2);
 
         //a >= 0, b < 0:
-        printf("\033[32mTEST SOMME (a >= 0, b < 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '-';
-        unbounded_int add_3 = unbounded_int_somme(l_1, l_2);
+        printf("\033[32mTEST SOMME (a >= 0, b < 0): (%s + %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '-';
+        unbounded_int add_3 = unbounded_int_somme(ui_1, ui_2);
         affiche(add_3);
 
         //b >= 0, a < 0:
-        printf("\033[32mTEST SOMME (b >= 0, a < 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '+';
-        unbounded_int add_4 = unbounded_int_somme(l_1, l_2);
+        printf("\033[32mTEST SOMME (b >= 0, a < 0): (%s + %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '+';
+        unbounded_int add_4 = unbounded_int_somme(ui_1, ui_2);
         affiche(add_4);
 
     printf("\033[31m*--------------------------------------------------*\033[37m\n\n");
     
     //TEST SOUSTRACTION:
         //a, b >= 0:
-        printf("\033[32mTEST SOUSTRACTION (a, b >= 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '+';
-        unbounded_int sous_1 = unbounded_int_difference(l_1, l_2);
+        printf("\033[32mTEST SOUSTRACTION (a, b >= 0): (%s - %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '+';
+        unbounded_int sous_1 = unbounded_int_difference(ui_1, ui_2);
         affiche(sous_1);
 
         //a, b <= 0:
-        printf("\033[32mTEST SOUSTRACTION (a, b <= 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '-';
-        unbounded_int sous_2 = unbounded_int_difference(l_1, l_2);
+        printf("\033[32mTEST SOUSTRACTION (a, b <= 0): (%s - %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '-';
+        unbounded_int sous_2 = unbounded_int_difference(ui_1, ui_2);
         affiche(sous_2);
 
         //a >= 0, b < 0:
-        printf("\033[32mTEST SOUSTRACTION (a >= 0, b < 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '-';
-        unbounded_int sous_3 = unbounded_int_difference(l_1, l_2);
+        printf("\033[32mTEST SOUSTRACTION (a >= 0, b < 0): (%s - %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '-';
+        unbounded_int sous_3 = unbounded_int_difference(ui_1, ui_2);
         affiche(sous_3);
 
         //b >= 0, a < 0:
-        printf("\033[32mTEST SOUSTRACTION (b >= 0, a < 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '+';
-        unbounded_int sous_4 = unbounded_int_difference(l_1, l_2);
+        printf("\033[32mTEST SOUSTRACTION (b >= 0, a < 0): (%s - %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '+';
+        unbounded_int sous_4 = unbounded_int_difference(ui_1, ui_2);
         affiche(sous_4);
 
     printf("\033[31m*--------------------------------------------------*\033[37m\n\n");
 
     //TEST MULTIPLICATION:
         //a, b >= 0:
-        printf("\033[32mTEST PRODUIT (a, b >= 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '+';
-        unbounded_int prod_1 = unbounded_int_produit(l_1, l_2);
+        printf("\033[32mTEST PRODUIT (a, b >= 0): (%s * %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '+';
+        unbounded_int prod_1 = unbounded_int_produit(ui_1, ui_2);
         affiche(prod_1);
 
         //a, b <= 0:
-        printf("\033[32mTEST PRODUIT (a, b <= 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '-';
-        unbounded_int prod_2 = unbounded_int_produit(l_1, l_2);
+        printf("\033[32mTEST PRODUIT (a, b <= 0): (%s * %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '-';
+        unbounded_int prod_2 = unbounded_int_produit(ui_1, ui_2);
         affiche(prod_2);
 
         //a >= 0, b < 0:
-        printf("\033[32mTEST PRODUIT (a >= 0, b < 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '-';
-        unbounded_int prod_3 = unbounded_int_produit(l_1, l_2);
+        printf("\033[32mTEST PRODUIT (a >= 0, b < 0): (%s * %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '-';
+        unbounded_int prod_3 = unbounded_int_produit(ui_1, ui_2);
         affiche(prod_3);
 
         //b >= 0, a < 0:
-        printf("\033[32mTEST PRODUIT (b >= 0, a < 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '+';
-        unbounded_int prod_4 = unbounded_int_produit(l_1, l_2);
+        printf("\033[32mTEST PRODUIT (b >= 0, a < 0): (%s * %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '+';
+        unbounded_int prod_4 = unbounded_int_produit(ui_1, ui_2);
         affiche(prod_4);
 
         printf("\033[31m*--------------------------------------------------*\033[37m\n\n");
 
     //TEST QUOTIENT:
         //a, b >= 0
-        printf("\033[32mTEST QUOTIENT (a, b >= 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '+';
-        unbounded_int quot_1 = unbounded_int_quotient(l_1, l_2);
+        printf("\033[32mTEST QUOTIENT (a, b >= 0): (%s / %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '+';
+        unbounded_int quot_1 = unbounded_int_quotient(ui_1, ui_2);
         affiche(quot_1);
 
         //a, b <= 0
-        printf("\033[32mTEST QUOTIENT (a, b <= 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '-';
-        unbounded_int quot_2 = unbounded_int_quotient(l_1, l_2);
+        printf("\033[32mTEST QUOTIENT (a, b <= 0): (%s / %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '-';
+        unbounded_int quot_2 = unbounded_int_quotient(ui_1, ui_2);
         affiche(quot_2);
 
         //a >= 0, b < 0
-        printf("\033[32mTEST QUOTIENT (a >= 0, b < 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '-';
-        unbounded_int quot_3 = unbounded_int_quotient(l_1, l_2);
+        printf("\033[32mTEST QUOTIENT (a >= 0, b < 0): (%s / %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '-';
+        unbounded_int quot_3 = unbounded_int_quotient(ui_1, ui_2);
         affiche(quot_3);
 
         //b >= 0, a < 0
-        printf("\033[32mTEST QUOTIENT (b >= 0, a < 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '+';
-        unbounded_int quot_4 = unbounded_int_quotient(l_1, l_2);
+        printf("\033[32mTEST QUOTIENT (b >= 0, a < 0): (%s / %s)\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '+';
+        unbounded_int quot_4 = unbounded_int_quotient(ui_1, ui_2);
         affiche(quot_4);
 
         printf("\033[31m*--------------------------------------------------*\033[37m\n\n");
 
     //TEST MODULO
         //a, b >= 0
-        printf("\033[32mTEST MODULO (a, b >= 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '+';
-        unbounded_int mod_1 = unbounded_int_modulo(l_1, l_2);
+        printf("\033[32mTEST MODULO (a, b >= 0): (%s [%s])\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '+';
+        unbounded_int mod_1 = unbounded_int_modulo(ui_1, ui_2);
         affiche(mod_1);
 
         //a, b <= 0
-        printf("\033[32mTEST MODULO (a, b <= 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '-';
-        unbounded_int mod_2 = unbounded_int_modulo(l_1, l_2);
+        printf("\033[32mTEST MODULO (a, b <= 0): (%s [%s])\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '-';
+        unbounded_int mod_2 = unbounded_int_modulo(ui_1, ui_2);
         affiche(mod_2);
 
         //a >= 0, b < 0
-        printf("\033[32mTEST MODULO (a >= 0, b < 0):\033[37m \n");
-        l_1.signe = '+';
-        l_2.signe = '-';
-        unbounded_int mod_3 = unbounded_int_modulo(l_1, l_2);
+        printf("\033[32mTEST MODULO (a >= 0, b < 0): (%s [%s])\033[37m \n", n_1, n_2);
+        ui_1.signe = '+';
+        ui_2.signe = '-';
+        unbounded_int mod_3 = unbounded_int_modulo(ui_1, ui_2);
         affiche(mod_3);
 
         //b >= 0, a < 0
-        printf("\033[32mTEST MODULO (b >= 0, a < 0):\033[37m \n");
-        l_1.signe = '-';
-        l_2.signe = '+';
-        unbounded_int mod_4 = unbounded_int_modulo(l_1, l_2);
+        printf("\033[32mTEST MODULO (b >= 0, a < 0): (%s [%s])\033[37m \n", n_1, n_2);
+        ui_1.signe = '-';
+        ui_2.signe = '+';
+        unbounded_int mod_4 = unbounded_int_modulo(ui_1, ui_2);
         affiche(mod_4);
 
     return EXIT_SUCCESS;

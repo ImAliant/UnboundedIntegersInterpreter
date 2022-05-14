@@ -7,22 +7,26 @@
 #include "unbounded_int.h"
 
 #define LINES_LENGTH 1024
-#define VAR_N_LENGTH 128
-#define VARIABLES 50
+#define VAR_NAME_LENGTH 128
+#define NB_VARIABLES 50
+#define MAX_LENGTH_NBR 50
+#define MAX_LENGTH_FILE_NAME 20
 #define ATOM "%s"
 #define BIN_OP "%s %c %[^\n]%s"
 #define PRINT "print %s"
 
+// Index des tableaux variables et valeur_variable a partir du quel les variables ne sont pas des variables temporaires.
 int i = 2;
+
 // Tableau de chaine de caracteres qui sauvegarde les variables ecrite dans le fichier source.
-char variables[VAR_N_LENGTH][VARIABLES];
+char variables[VAR_NAME_LENGTH][NB_VARIABLES];
 
 // Tableau de unbounded_int qui sauvegarde les valeurs de chaque variables donnes dans le fichier source.
-unbounded_int valeur_variable[VARIABLES];
+unbounded_int valeur_variable[NB_VARIABLES];
 
 // Cherche l'indice de la variable dans le tableau de chaine de caractere donne en argument.
 static int cherche_variable(char* var) {
-    for (int i = 0; i < VARIABLES && variables[i] != NULL; i++) {
+    for (int i = 0; i < NB_VARIABLES && variables[i] != NULL; i++) {
         if (strcmp(variables[i], var) == 0) {
             return i;
         }
@@ -37,14 +41,12 @@ static void print_f_out(FILE* f, char* var) {
         printf("Cette variable n'existe pas !");
         exit(EXIT_FAILURE);
     }
-    else {
-        char* s = unbounded_int2string(valeur_variable[index]);
-        if (!f) {
-            perror("fopen");
-            exit(EXIT_FAILURE);
-        }
-        fprintf(f, "%s = %s\n", var, s);
+    if (!f) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
     }
+    char* s = unbounded_int2string(valeur_variable[index]);
+    fprintf(f, "%s = %s\n", var, s);
 }
 
 // Calcule la nouvelle valeur de var en faisant la somme des deux variables donnes en arguments.
@@ -54,12 +56,11 @@ static void addition(char* var, char* a, char* b) {
     int index_b = cherche_variable(b);
 
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        printf("Une des variables n'existe pas !\n");
+        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
-    else {
-        valeur_variable[index_var] = unbounded_int_somme(valeur_variable[index_a], valeur_variable[index_b]);
-    }
+
+    valeur_variable[index_var] = unbounded_int_somme(valeur_variable[index_a], valeur_variable[index_b]);
 }
 // Calcule la nouvelle valeur de var en faisant la soustraction des deux variables donnes en arguments.
 static void soustraction(char* var, char* a, char* b) {
@@ -68,11 +69,11 @@ static void soustraction(char* var, char* a, char* b) {
     int index_b = cherche_variable(b);
 
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        printf("Une des variables n'existe pas !\n");
+        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
-    else
-        valeur_variable[index_var] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
+    
+    valeur_variable[index_var] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
 // Calcule la nouvelle valeur de var en faisant le produit des deux variables donnes en arguments.
@@ -82,44 +83,42 @@ static void multiplication(char* var, char* a, char* b) {
     int index_b = cherche_variable(b);
 
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        printf("Une des variables n'existe pas !\n");
-        exit(1);
+        perror("Une des variables n'existe pas !\n");
+        exit(EXIT_FAILURE);
     }
-    else {
-        if (unbounded_int_cmp_unbounded_int(valeur_variable[index_a], valeur_variable[index_b]) == -1)
-            valeur_variable[index_var] = unbounded_int_produit(valeur_variable[index_b], valeur_variable[index_a]);
-        else
-            valeur_variable[index_var] = unbounded_int_produit(valeur_variable[index_a], valeur_variable[index_b]);
-    }
+    
+    if (unbounded_int_cmp_unbounded_int(valeur_variable[index_a], valeur_variable[index_b]) == -1)
+        valeur_variable[index_var] = unbounded_int_produit(valeur_variable[index_b], valeur_variable[index_a]);
+    else
+        valeur_variable[index_var] = unbounded_int_produit(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
-// Calcule la nouvelle valeur de var �gale au quotient de la division des deux variables donnes en arguments.
+// Calcule la nouvelle valeur de var egale au quotient de la division des deux variables donnes en arguments.
 static void quotient(char* var, char* a, char* b) {
     int index_var = cherche_variable(var);
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        printf("Une des variables n'existe pas !\n");
-        exit(1);
+        perror("Une des variables n'existe pas !\n");
+        exit(EXIT_FAILURE);
     }
-    else {
-        valeur_variable[index_var] = unbounded_int_quotient(valeur_variable[index_a], valeur_variable[index_b]);
-    }
+    
+    valeur_variable[index_var] = unbounded_int_quotient(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
-// Calcule la nouvelle valeur de var �gale au reste de la division des deux variables donnes en arguments.
+// Calcule la nouvelle valeur de var egale au reste de la division des deux variables donnes en arguments.
 static void modulo(char* var, char* a, char* b) {
     int index_var = cherche_variable(var);
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        printf("Une des variables n'existe pas !\n");
-        exit(1);
+        perror("Une des variables n'existe pas !\n");
+        exit(EXIT_FAILURE);
     }
-    else
-        valeur_variable[index_var] = unbounded_int_modulo(valeur_variable[index_a], valeur_variable[index_b]);
+    
+    valeur_variable[index_var] = unbounded_int_modulo(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
 static void puissance(char* var, char* a, char* b) {
@@ -128,14 +127,14 @@ static void puissance(char* var, char* a, char* b) {
     int index_b = cherche_variable(b);
 
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        printf("Une des variables n'existe pas !\n");
-        exit(1);
+        perror("Une des variables n'existe pas !\n");
+        exit(EXIT_FAILURE);
     }
-    else
-        valeur_variable[index_var] = unbounded_int_puissance(valeur_variable[index_a], valeur_variable[index_b]);
+    
+    valeur_variable[index_var] = unbounded_int_puissance(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
-// Identifie quel type d'op�ration doit �tre effectu�.
+// Identifie quel type d'operation doit etre effectue.
 static void cond_ope(char op, char* var, char* var1, char* var2) {
     switch (op)
     {
@@ -200,7 +199,8 @@ static void cond_ope(char op, char* var, char* var1, char* var2) {
             puissance(var, var1, var2);
         break;
     default:
-        printf("Cette operation n'existe pas !");
+        perror("Cette operation n'existe pas !");
+        exit(EXIT_FAILURE);
         break;
     }
 }
@@ -223,14 +223,14 @@ static void process_atom(char* var, char* val) {
         valeur_variable[index] = string2unbounded_int(val);
 }
 
-// V�rifie si l'expression donn� en argument est une attribution de valeur ou un calcule.
+// Verifie si l'expression donne en argument est une attribution de valeur ou un calcule.
 static void process_expression(char* var, char* exp) {
-    char* lhs = malloc(30 * sizeof(char));
+    char* lhs = malloc(MAX_LENGTH_NBR * sizeof(char));
     assert(lhs != NULL);
-    char* rhs = malloc(30 * sizeof(char));
+    char* rhs = malloc(MAX_LENGTH_NBR * sizeof(char));
     assert(rhs != NULL);
 
-    char* a = malloc(30 * sizeof(char));
+    char* a = malloc(MAX_LENGTH_NBR * sizeof(char));
     assert(a != NULL);
     char op = '0';
 
@@ -259,13 +259,13 @@ static void process_expression(char* var, char* exp) {
         process_atom(var, a);
     }
     else {
-        printf("ERROR : p_e");
+        perror("ERROR : process_expression");
         exit(EXIT_FAILURE);
     }
 }
 
-// Lit les instructions pr�sente dans le fichier source.
-// Ecrit les valeurs des variables demand�s dans le fichier dest.
+// Lit les instructions presente dans le fichier source.
+// Ecrit les valeurs des variables demandes dans le fichier dest.
 void interpreteur(char* source, char* dest) {
     FILE* fic_in = NULL;
     FILE* fic_out = NULL;
@@ -273,7 +273,7 @@ void interpreteur(char* source, char* dest) {
     if (strcmp(source, "vide") != 0) {
         fic_in = fopen(source, "r");
         if (fic_in == NULL) {
-            printf("Le fichier n'a pas pu etre ouvert.\n");
+            perror("Le fichier n'a pas pu etre ouvert.\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -298,14 +298,14 @@ void interpreteur(char* source, char* dest) {
     valeur_variable[1] = string2unbounded_int("0");
 
     char op = '0';
-    char* var = malloc(30*sizeof(char));
+    char* var = malloc(MAX_LENGTH_NBR * sizeof(char));
 
     char buffer[LINES_LENGTH];
 
     while (fgets(buffer, LINES_LENGTH, fic_in)) {
-        char* lhs = malloc(30 * sizeof(char));
+        char* lhs = malloc(MAX_LENGTH_NBR * sizeof(char));
         assert(lhs != NULL);
-        char* rhs = malloc(30 * sizeof(char));
+        char* rhs = malloc(MAX_LENGTH_NBR * sizeof(char));
         assert(rhs != NULL);
 
         if (sscanf(buffer, PRINT, var) == 1) {
@@ -315,14 +315,14 @@ void interpreteur(char* source, char* dest) {
             if (op == '=')
                 process_expression(lhs, rhs);
             else {
-                printf("ERROR : 1 if");
+                printf("ERROR : 1 if\n");
                 exit(EXIT_FAILURE);
             }
         }
         else if (buffer[0] == '\n')
             continue;
         else {
-            printf("ERROR : else");
+            printf("ERROR : else\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -333,10 +333,10 @@ void interpreteur(char* source, char* dest) {
 
 // Main du fichier calc_unbounded_int.c
 int main(int argc, char *argv[]) {
-    char* source = malloc(10 * sizeof(char));
+    char* source = malloc(MAX_LENGTH_FILE_NAME * sizeof(char));
     assert(source != NULL);
     source = "vide";
-    char *dest = malloc(10*sizeof(char));
+    char *dest = malloc(MAX_LENGTH_FILE_NAME * sizeof(char));
     assert(dest != NULL);
     dest = "vide";
 
@@ -356,7 +356,7 @@ int main(int argc, char *argv[]) {
         }
     }
     
-    interpreteur("source.txt", dest);
+    interpreteur(source, dest);
 
     return EXIT_SUCCESS;
 }

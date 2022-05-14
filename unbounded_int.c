@@ -359,9 +359,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
 unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
+    //ACTUELLEMENT UTILISE
     //MEILLEURE MEMOIRE MAIS NE FONCTIONNE PAS POUR LES GRANDS NOMBRES
 
-    /*chiffre* dern = malloc(sizeof(chiffre));
+    chiffre* dern = malloc(sizeof(chiffre));
     assert(dern != NULL);
     dern->suivant = NULL;
     dern->precedent = NULL;
@@ -431,13 +432,12 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         res.signe = '+';
     else res.signe = '-';
 
-    return res;*/
+    return res;
 
-    //ACTUELLEMENT UTILISE
     //FONCTIONNE UNE FOIS
     //FONCTIONNE POUR LES GRANDS NOMBRES
 
-    chiffre* dern = malloc(sizeof(chiffre));
+    /*chiffre* dern = malloc(sizeof(chiffre));
     assert(dern != NULL);
     dern->suivant = NULL;
     dern->precedent = NULL;
@@ -502,7 +502,7 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         res.signe = '+';
     else res.signe = '-';
 
-    return res;
+    return res;*/
 }
 
 unbounded_int unbounded_int_puissance(unbounded_int x, unbounded_int y) {

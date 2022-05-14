@@ -20,7 +20,7 @@ test : $(OBJ_TEST)
 
 clean :
 	@echo "clean project"
-	-$(cmd) prog.exe *.o
-	-$(cmd) test.exe *.o
+	-$(cmd) prog *.o
+	-$(cmd) test *.o
 	@echo "clean completed"
 .PHONY: clean

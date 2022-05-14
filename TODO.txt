@@ -1,1 +1,1 @@
-- Modifier produit pour ne crer que n+m-1 0 et créer un nouvelle remplacement si r != 0.
+- PAS DE LIMITE DE TAILLE POUR LES NOMS DE VARIABLES.
