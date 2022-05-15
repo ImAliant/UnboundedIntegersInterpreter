@@ -360,7 +360,6 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
     //ACTUELLEMENT UTILISE
-    //MEILLEURE MEMOIRE MAIS NE FONCTIONNE PAS POUR LES GRANDS NOMBRES
 
     chiffre* dern = malloc(sizeof(chiffre));
     assert(dern != NULL);

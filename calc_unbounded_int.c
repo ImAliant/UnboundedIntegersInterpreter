@@ -9,7 +9,6 @@
 #define LINES_LENGTH 1024
 #define VAR_NAME_LENGTH 128
 #define NB_VARIABLES 50
-#define MAX_LENGTH_NBR 50
 #define MAX_LENGTH_FILE_NAME 20
 #define ATOM "%s"
 #define BIN_OP "%s %c %[^\n]%s"
@@ -19,7 +18,7 @@
 int i = 2;
 
 // Tableau de chaine de caracteres qui sauvegarde les variables ecrite dans le fichier source.
-char variables[VAR_NAME_LENGTH][NB_VARIABLES];
+char** variables;
 
 // Tableau de unbounded_int qui sauvegarde les valeurs de chaque variables donnes dans le fichier source.
 unbounded_int valeur_variable[NB_VARIABLES];
@@ -215,6 +214,8 @@ static void process_atom(char* var, char* val) {
     int index = cherche_variable(var);
 
     if (index == -1) {
+        variables[i] = malloc(strlen(var) * sizeof(char) + 1);
+        assert(variables[i] != NULL);
         strcpy(variables[i], var);
         valeur_variable[i] = string2unbounded_int(val);
         i++;
@@ -225,17 +226,19 @@ static void process_atom(char* var, char* val) {
 
 // Verifie si l'expression donne en argument est une attribution de valeur ou un calcule.
 static void process_expression(char* var, char* exp) {
-    char* lhs = malloc(MAX_LENGTH_NBR * sizeof(char));
+    char* lhs = malloc(VAR_NAME_LENGTH * sizeof(char));
     assert(lhs != NULL);
-    char* rhs = malloc(MAX_LENGTH_NBR * sizeof(char));
+    char* rhs = malloc(VAR_NAME_LENGTH * sizeof(char));
     assert(rhs != NULL);
 
-    char* a = malloc(MAX_LENGTH_NBR * sizeof(char));
+    char* a = malloc(VAR_NAME_LENGTH * sizeof(char));
     assert(a != NULL);
     char op = '0';
 
     if (sscanf(exp, BIN_OP, lhs, &op, rhs) == 3) {
         if (cherche_variable(var) == -1) {
+            variables[i] = malloc(strlen(var) * sizeof(char) + 1);
+            assert(variables[i] != NULL);
             strcpy(variables[i], var);
             valeur_variable[i] = string2unbounded_int("0");
             i++;
@@ -290,22 +293,28 @@ void interpreteur(char* source, char* dest) {
     else
         fic_out = stdout;
 
-    //valeur temp 1
+    variables = malloc(NB_VARIABLES * sizeof(char *));
+    assert(variables != NULL);
+    
+    variables[0] = malloc(5 * sizeof(char) + 1);
+    assert(variables[0] != NULL);
     strcpy(variables[0], "temp1");
     valeur_variable[0] = string2unbounded_int("0");
-    //valeur temp 2
+
+    variables[1] = malloc(5 * sizeof(char) + 1);
+    assert(variables[1] != NULL);
     strcpy(variables[1], "temp2");
     valeur_variable[1] = string2unbounded_int("0");
 
     char op = '0';
-    char* var = malloc(MAX_LENGTH_NBR * sizeof(char));
+    char* var = malloc(VAR_NAME_LENGTH * sizeof(char));
 
     char buffer[LINES_LENGTH];
 
     while (fgets(buffer, LINES_LENGTH, fic_in)) {
-        char* lhs = malloc(MAX_LENGTH_NBR * sizeof(char));
+        char* lhs = malloc(VAR_NAME_LENGTH * sizeof(char));
         assert(lhs != NULL);
-        char* rhs = malloc(MAX_LENGTH_NBR * sizeof(char));
+        char* rhs = malloc(VAR_NAME_LENGTH * sizeof(char));
         assert(rhs != NULL);
 
         if (sscanf(buffer, PRINT, var) == 1) {
