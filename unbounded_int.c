@@ -529,7 +529,7 @@ unbounded_int unbounded_int_quotient(unbounded_int a, unbounded_int b) {
     int compteur = -1;
 
     if (unbounded_int_cmp_ll(b, 0) == 0) {
-        printf("Le diviseur est �gale � 0 !!");
+        printf("Le diviseur est egale a 0 !!");
         exit(EXIT_FAILURE);
     }
 
@@ -551,8 +551,10 @@ unbounded_int unbounded_int_modulo(unbounded_int a, unbounded_int b) {
     unbounded_int temp_a = a;
     unbounded_int temp_b = b;
 
-    temp_a.signe = '+';
-    temp_b.signe = '+';
+    if(temp_a.signe == '-') 
+        temp_a.signe = '+';
+    if(temp_b.signe == '-') 
+        temp_b.signe = '+';
    
     while (temp_a.signe != '-' || unbounded_int_cmp_ll(temp_a, 0) == 0) {
         if (unbounded_int_cmp_ll(temp_a, 0) == 1)

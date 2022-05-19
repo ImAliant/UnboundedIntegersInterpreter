@@ -22,5 +22,6 @@ clean :
 	@echo "clean project"
 	-$(cmd) prog *.o
 	-$(cmd) test *.o
+	-$(cmd) dest.txt
 	@echo "clean completed"
 .PHONY: clean

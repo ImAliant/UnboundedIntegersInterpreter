@@ -1,13 +1,10 @@
-alex = 897676764344676545687876565
-alex = alex * alex
-alex = alex - 7867656443555498966543
-bet = 98987676565
+alexandre = 897676764344676545687876565
+alexandre = alexandre * alexandre
+beth = 98987676565
 
-bet = 3 * bet
-alex = alex - bet
-print alex
-print bet
-cel = alex - -565543443423
-print cel
-d = 9108029812908201
-print d
+beth = 3 * beth
+alexandre = alexandre - beth
+print alexandre
+print beth
+celestiale = alexandre - -565543443423
+print celestiale

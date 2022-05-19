@@ -6,26 +6,42 @@
 
 #include "unbounded_int.h"
 
-#define LINES_LENGTH 1024
-#define VAR_NAME_LENGTH 128
-#define NB_VARIABLES 50
-#define MAX_LENGTH_FILE_NAME 20
+//Caracteres lues dans le fichier par le programme. 
+#define LINES_LENGTH 1024 
+
+//Longueur maximale des noms des variables par défaut.
+#define VAR_NAME_LENGTH 10 
+
+//Nombre de variable maximum par défaut.
+#define NB_VARIABLES 10 
+
+//Longueur maximale des noms des fichiers src et dest.
+#define MAX_LENGTH_FILE_NAME 20 
+
+//Correspond a la une variable ou a une valeur de variable.
 #define ATOM "%s"
-#define BIN_OP "%s %c %[^\n]%s"
-#define PRINT "print %s"
+
+//Operation sur deux variables, une variable et un entier ou deux entiers.
+#define BIN_OP "%s %c %[^\n]%s" 
+
+//Recupere le nom de la variable a affiche.
+#define PRINT "print %s" 
 
 // Index des tableaux variables et valeur_variable a partir du quel les variables ne sont pas des variables temporaires.
 int i = 2;
+
+//Longueur par défaut des tableaux.
+int length = NB_VARIABLES;
 
 // Tableau de chaine de caracteres qui sauvegarde les variables ecrite dans le fichier source.
 char** variables;
 
 // Tableau de unbounded_int qui sauvegarde les valeurs de chaque variables donnes dans le fichier source.
-unbounded_int valeur_variable[NB_VARIABLES];
+unbounded_int *valeur_variable;
 
 // Cherche l'indice de la variable dans le tableau de chaine de caractere donne en argument.
 static int cherche_variable(char* var) {
-    for (int i = 0; i < NB_VARIABLES && variables[i] != NULL; i++) {
+    for (int i = 0; i < length && variables[i] != NULL; i++) {
         if (strcmp(variables[i], var) == 0) {
             return i;
         }
@@ -37,11 +53,11 @@ static int cherche_variable(char* var) {
 static void print_f_out(FILE* f, char* var) {
     int index = cherche_variable(var);
     if (index == -1) {
-        printf("Cette variable n'existe pas !");
+        printf("print_f_out | La variable %s n'existe pas !\n", var);
         exit(EXIT_FAILURE);
     }
     if (!f) {
-        perror("fopen");
+        perror("print_f_out | Le fichier n'est pas ouvert !\n");
         exit(EXIT_FAILURE);
     }
     char* s = unbounded_int2string(valeur_variable[index]);
@@ -54,8 +70,13 @@ static void addition(char* var, char* a, char* b) {
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
+    if(index_var == -1)
+        printf("addition | La variable %s n'existe pas !\n", var);
+    if(index_a == -1)
+        printf("addition | La variable %s n'existe pas !\n", a);
+    if(index_b == -1)
+        printf("addition | La variable %s n'existe pas !\n", b);
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
 
@@ -67,11 +88,16 @@ static void soustraction(char* var, char* a, char* b) {
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
+    if(index_var == -1)
+        printf("soustraction | La variable %s n'existe pas !\n", var);
+    if(index_a == -1)
+        printf("soustraction | La variable %s n'existe pas !\n", a);
+    if(index_b == -1)
+        printf("soustraction | La variable %s n'existe pas !\n", b);
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
-    
+
     valeur_variable[index_var] = unbounded_int_difference(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
@@ -81,8 +107,13 @@ static void multiplication(char* var, char* a, char* b) {
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
+    if(index_var == -1)
+        printf("multiplication | La variable %s n'existe pas !\n", var);
+    if(index_a == -1)
+        printf("multiplication | La variable %s n'existe pas !\n", a);
+    if(index_b == -1)
+        printf("multiplication | La variable %s n'existe pas !\n", b);
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
     
@@ -98,8 +129,13 @@ static void quotient(char* var, char* a, char* b) {
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
+    if(index_var == -1)
+        printf("quotient | La variable %s n'existe pas !\n", var);
+    if(index_a == -1)
+        printf("quotient | La variable %s n'existe pas !\n", a);
+    if(index_b == -1)
+        printf("quotient | La variable %s n'existe pas !\n", b);
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
     
@@ -112,21 +148,32 @@ static void modulo(char* var, char* a, char* b) {
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
+    if(index_var == -1)
+        printf("modulo | La variable %s n'existe pas !\n", var);
+    if(index_a == -1)
+        printf("modulo | La variable %s n'existe pas !\n", a);
+    if(index_b == -1)
+        printf("modulo | La variable %s n'existe pas !\n", b);
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
-    
+
     valeur_variable[index_var] = unbounded_int_modulo(valeur_variable[index_a], valeur_variable[index_b]);
 }
 
+// Calcule la nouvelle valeur de var egale a la variable a puissance b.
 static void puissance(char* var, char* a, char* b) {
     int index_var = cherche_variable(var);
     int index_a = cherche_variable(a);
     int index_b = cherche_variable(b);
 
+    if(index_var == -1)
+        printf("puissance | La variable %s n'existe pas !\n", var);
+    if(index_a == -1)
+        printf("puissance | La variable %s n'existe pas !\n", a);
+    if(index_b == -1)
+        printf("puissance | La variable %s n'existe pas !\n", b);
     if (index_var == -1 || index_a == -1 || index_b == -1) {
-        perror("Une des variables n'existe pas !\n");
         exit(EXIT_FAILURE);
     }
     
@@ -198,9 +245,31 @@ static void cond_ope(char op, char* var, char* var1, char* var2) {
             puissance(var, var1, var2);
         break;
     default:
-        perror("Cette operation n'existe pas !");
+        perror("cond_ope | L'operation n'existe pas !\n");
         exit(EXIT_FAILURE);
         break;
+    }
+}
+
+static void realloc_variables(int length) {
+    char** t1 = realloc(variables, 2 * length * sizeof(char*));
+    if(t1 == NULL) {
+        perror("realloc_variables | Réallocation tableau variables : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
+    variables = t1;
+    unbounded_int *t2 = realloc(valeur_variable, 2 * length * sizeof(unbounded_int));
+    if(t2 == NULL) {
+        perror("realloc_variables | Réallocation tableau valeur variables : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
+    valeur_variable = t2;
+    for(int i = length; i<length*2; i++) {
+        variables[i] = malloc(VAR_NAME_LENGTH * sizeof(char) + 1);
+        if(variables[i] == NULL) {
+            printf("realloc_variables | Allocation de la case %d du tableau variables: ECHOUE\n", i);
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -214,9 +283,20 @@ static void process_atom(char* var, char* val) {
     int index = cherche_variable(var);
 
     if (index == -1) {
-        variables[i] = malloc(strlen(var) * sizeof(char) + 1);
-        assert(variables[i] != NULL);
+        if(i+1 > length) {
+            realloc_variables(length);
+            length *= 2;
+        }
+        if(strlen(var) > VAR_NAME_LENGTH) {
+            char *t = realloc(variables[i], strlen(var) * sizeof(char) + 1);
+            if(variables[i] == NULL) {
+                printf("process_atom | Réallocation de la case %d du tableau variables: ECHOUE\n", i);
+                exit(EXIT_FAILURE);
+            }
+            variables[i] = t;
+        }
         strcpy(variables[i], var);
+
         valeur_variable[i] = string2unbounded_int(val);
         i++;
     }
@@ -226,20 +306,40 @@ static void process_atom(char* var, char* val) {
 
 // Verifie si l'expression donne en argument est une attribution de valeur ou un calcule.
 static void process_expression(char* var, char* exp) {
-    char* lhs = malloc(VAR_NAME_LENGTH * sizeof(char));
-    assert(lhs != NULL);
-    char* rhs = malloc(VAR_NAME_LENGTH * sizeof(char));
-    assert(rhs != NULL);
+    char* lhs = malloc(128 * sizeof(char) + 1);
+    if(lhs == NULL) {
+        perror("process_expression | Allocation lhs : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
+    char* rhs = malloc(128 * sizeof(char) + 1);
+    if(rhs == NULL) {
+        perror("process_expression | Allocation rhs : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
 
-    char* a = malloc(VAR_NAME_LENGTH * sizeof(char));
-    assert(a != NULL);
+    char* nom_entier = malloc(128 * sizeof(char) + 1);
+    if(nom_entier == NULL) {
+        perror("process_expression | Allocation nom_entier : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
     char op = '0';
 
     if (sscanf(exp, BIN_OP, lhs, &op, rhs) == 3) {
         if (cherche_variable(var) == -1) {
-            variables[i] = malloc(strlen(var) * sizeof(char) + 1);
-            assert(variables[i] != NULL);
+            if(i+1 > length) {
+                realloc_variables(length);
+                length *= 2;
+            }
+            if(strlen(var) > VAR_NAME_LENGTH) {
+                char *t = realloc(variables[i], strlen(var) * sizeof(char) + 1);
+                if(t == NULL) {
+                    printf("process_expression | Réallocation de la case %d du tableau variables: ECHOUE\n", i);
+                    exit(EXIT_FAILURE);
+                }
+                variables[i] = t;
+            }
             strcpy(variables[i], var);
+
             valeur_variable[i] = string2unbounded_int("0");
             i++;
         }
@@ -258,11 +358,11 @@ static void process_expression(char* var, char* exp) {
         else
             cond_ope(op, var, lhs, rhs);
     }
-    else if (sscanf(exp, ATOM, a) == 1) {
-        process_atom(var, a);
+    else if (sscanf(exp, ATOM, nom_entier) == 1) {
+        process_atom(var, nom_entier);
     }
     else {
-        perror("ERROR : process_expression");
+        perror("process_expression | ERROR\n");
         exit(EXIT_FAILURE);
     }
 }
@@ -276,7 +376,7 @@ void interpreteur(char* source, char* dest) {
     if (strcmp(source, "vide") != 0) {
         fic_in = fopen(source, "r");
         if (fic_in == NULL) {
-            perror("Le fichier n'a pas pu etre ouvert.\n");
+            perror("interpreteur | Le fichier source n'a pas pu etre ouvert.\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -286,7 +386,7 @@ void interpreteur(char* source, char* dest) {
     if (strcmp(dest, "vide") != 0) {
         fic_out = fopen(dest, "w+");
         if (fic_out == NULL) {
-            perror("fopen");
+            perror("interpreteur | Le fichier dest n'a pas pu etre ouvert.\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -294,28 +394,50 @@ void interpreteur(char* source, char* dest) {
         fic_out = stdout;
 
     variables = malloc(NB_VARIABLES * sizeof(char *));
-    assert(variables != NULL);
+    if(variables == NULL) {
+        perror("interpreteur | Allocation du tableau variables : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
+    for(int i = 0; i<NB_VARIABLES; i++) {
+        variables[i] = malloc(VAR_NAME_LENGTH * sizeof(char) + 1);
+        if(variables[i] == NULL) {
+            printf("interpreteur | Allocation de la case %d du tableau variables : ECHOUE\n", i);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    valeur_variable = malloc(NB_VARIABLES * sizeof(unbounded_int));
+    if(valeur_variable == NULL) {
+        perror("interpreteur | Allocation du tableau valeur_variable : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
     
-    variables[0] = malloc(5 * sizeof(char) + 1);
-    assert(variables[0] != NULL);
-    strcpy(variables[0], "temp1");
+    strcpy(variables[0], "tmp1");
     valeur_variable[0] = string2unbounded_int("0");
 
-    variables[1] = malloc(5 * sizeof(char) + 1);
-    assert(variables[1] != NULL);
-    strcpy(variables[1], "temp2");
+    strcpy(variables[1], "tmp2");
     valeur_variable[1] = string2unbounded_int("0");
 
     char op = '0';
-    char* var = malloc(VAR_NAME_LENGTH * sizeof(char));
+    char* var = malloc(256 * sizeof(char) + 1);
+    if(var == NULL) {
+        perror("interpreteur | Allocation var : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
 
     char buffer[LINES_LENGTH];
 
     while (fgets(buffer, LINES_LENGTH, fic_in)) {
-        char* lhs = malloc(VAR_NAME_LENGTH * sizeof(char));
-        assert(lhs != NULL);
-        char* rhs = malloc(VAR_NAME_LENGTH * sizeof(char));
-        assert(rhs != NULL);
+        char* lhs = malloc(256 * sizeof(char) + 1);
+        if(lhs == NULL) {
+            perror("interpreteur | Allocation lhs : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
+        char* rhs = malloc(256 * sizeof(char) + 1);
+        if(rhs == NULL) {
+            perror("interpreteur | Allocation rhs : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
 
         if (sscanf(buffer, PRINT, var) == 1) {
             process_print(fic_out, var);
@@ -324,14 +446,14 @@ void interpreteur(char* source, char* dest) {
             if (op == '=')
                 process_expression(lhs, rhs);
             else {
-                printf("ERROR : 1 if\n");
+                perror("interpreteur | ERROR : L'opération n'existe pas !\n");
                 exit(EXIT_FAILURE);
             }
         }
         else if (buffer[0] == '\n')
             continue;
         else {
-            printf("ERROR : else\n");
+            printf("interpreteur | ERROR : Le format ne correspond pas !\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -343,10 +465,16 @@ void interpreteur(char* source, char* dest) {
 // Main du fichier calc_unbounded_int.c
 int main(int argc, char *argv[]) {
     char* source = malloc(MAX_LENGTH_FILE_NAME * sizeof(char));
-    assert(source != NULL);
+    if(source == NULL) {
+        perror("main | Allocation nom fichier source: ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
     source = "vide";
     char *dest = malloc(MAX_LENGTH_FILE_NAME * sizeof(char));
-    assert(dest != NULL);
+    if(dest == NULL) {
+        perror("main | Allocation nom fichier dest: ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
     dest = "vide";
 
     if(argv[1] != NULL) {
@@ -366,6 +494,11 @@ int main(int argc, char *argv[]) {
     }
     
     interpreteur(source, dest);
+
+    for(int i=0; i<length; i++) {
+        free(variables[i]);
+    }
+    free(variables);
 
     return EXIT_SUCCESS;
 }
