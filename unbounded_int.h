@@ -38,6 +38,7 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b);
 // Retourne un unbounded_int qui correspond au produit des deux unbounded_int donnés en arguments.
 unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b);
 
+// Retourne un unbounded_int qui corresponde a a puissance b.
 unbounded_int unbounded_int_puissance(unbounded_int a, unbounded_int b);
 
 // Retourne un unbounded_int qui correspond au quotient de la division des deux unbounded_int donnés en arguments.

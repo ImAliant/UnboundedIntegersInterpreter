@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "unbounded_int.h"
 
@@ -39,7 +38,10 @@ unbounded_int string2unbounded_int(const char *e) {
 
     for(int i=prem_ent+1; i<len; i++){
         chiffre *n_elt = malloc(sizeof(chiffre));
-        assert(n_elt != NULL);
+        if(n_elt == NULL) {
+            perror("string2unbounded_int | Allocation n_elt : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
 
         n_elt->c = e[i];
         n_elt->suivant = NULL;
@@ -58,7 +60,10 @@ unbounded_int ll2unbounded_int(long long i) {
     unbounded_int res;
 
     char *s = malloc(20*sizeof(long long)+1);
-    assert(s != NULL);
+    if(s == NULL){
+        perror("ll2unbounded_int | Allocation s : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
 
     sprintf(s, "%lld", i);
     
@@ -75,14 +80,20 @@ char *unbounded_int2string(unbounded_int i) {
     unsigned int index;
     if(i.signe == '-') {
         res = malloc(i.len*sizeof(char)+1);
-        assert(res != NULL);
+        if(res == NULL) {
+            perror("unbounded_int2string | Allocation res : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
         res[0] = i.signe;
         index = 1;
     }
     else {
         index = 0;
         res = malloc(i.len*sizeof(char));
-        assert(res != NULL);
+        if(res == NULL) {
+            perror("unbounded_int2string | Allocation res : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
     }
     while(cur != NULL) {
         res[index] = cur->c;
@@ -139,7 +150,10 @@ unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
 
     if((a.signe == '+' && b.signe == '+') || (a.signe == '-' && b.signe == '-')) {
         chiffre * dern = malloc(sizeof(chiffre));
-        assert(dern != NULL);
+        if(dern == NULL) {
+            perror("unbounded_int_somme | Allocation dern : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
         dern->suivant = NULL;
         dern->precedent = NULL;
 
@@ -156,7 +170,10 @@ unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
             r = ((cur_a->c-'0')+(cur_b->c-'0')+r)/10;
 
             cur_res->precedent = malloc(sizeof(chiffre));
-            assert(cur_res->precedent != NULL);
+            if(cur_res->precedent == NULL) {
+                perror("unbounded_int_somme | Allocation cur_res->precedent : ECHOUE\n");
+                exit(EXIT_FAILURE);
+            }
             cur_res->precedent->suivant = cur_res;
             cur_res = cur_res->precedent;
             cur_a = cur_a->precedent;
@@ -174,7 +191,10 @@ unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
                 r = ((cur_b->c-'0')+r)/10;
 
                 cur_res->precedent = malloc(sizeof(chiffre));
-                assert(cur_res->precedent != NULL);
+                if(cur_res->precedent == NULL) {
+                    perror("unbounded_int_somme | Allocation cur_res->precedent : ECHOUE\n");
+                    exit(EXIT_FAILURE);
+                }
                 cur_res->precedent->suivant = cur_res;
                 cur_res = cur_res->precedent;
                 cur_b = cur_b->precedent;
@@ -188,7 +208,10 @@ unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
                 r = ((cur_a->c-'0')+r)/10;
 
                 cur_res->precedent = malloc(sizeof(chiffre));
-                assert(cur_res->precedent != NULL);
+                if(cur_res->precedent == NULL) {
+                    perror("unbounded_int_somme | Allocation cur_res->precedent : ECHOUE\n");
+                    exit(EXIT_FAILURE);
+                }
                 cur_res->precedent->suivant = cur_res;
                 cur_res = cur_res->precedent;
                 cur_a = cur_a->precedent;
@@ -237,7 +260,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
             chiffre* cur_b = b.dernier;
 
             chiffre* cur = malloc(sizeof(chiffre));
-            assert(cur != NULL);
+            if(cur == NULL) {
+                perror("unbounded_int_difference | Allocation cur : ECHOUE\n");
+                exit(EXIT_FAILURE);
+            }
 
             res.dernier = cur;
             cur->suivant = NULL;
@@ -251,7 +277,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
 
                 if (cur_a->precedent != NULL && cur_b->precedent != NULL) {
                     cur->precedent = malloc(sizeof(chiffre));
-                    assert(cur->precedent);
+                    if(cur->precedent == NULL) {
+                        perror("unbounded_int_difference | Allocation cur->precedent : ECHOUE\n");
+                        exit(EXIT_FAILURE);
+                    }
                     cur->precedent->suivant = cur;
                     cur = cur->precedent;
                 }
@@ -266,7 +295,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
                     
                     if(diff - 1 != 0) {
                         cur->precedent = malloc(sizeof(chiffre));
-                        assert(cur->precedent);
+                        if(cur->precedent == NULL) {
+                            perror("unbounded_int_difference | Allocation cur->precedent : ECHOUE\n");
+                            exit(EXIT_FAILURE);
+                        }
                         cur->precedent->suivant = cur;
                         cur = cur->precedent;
 
@@ -276,7 +308,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
                     else {
                         if(calc > 0) {
                             cur->precedent = malloc(sizeof(chiffre));
-                            assert(cur->precedent);
+                            if(cur->precedent == NULL) {
+                                perror("unbounded_int_difference | Allocation cur->precedent : ECHOUE\n");
+                                exit(EXIT_FAILURE);
+                            }
                             cur->precedent->suivant = cur;
                             cur = cur->precedent;
 
@@ -295,7 +330,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
                     
                     if(diff - 1 != 0) {
                         cur->precedent = malloc(sizeof(chiffre));
-                        assert(cur->precedent);
+                        if(cur->precedent == NULL) {
+                            perror("unbounded_int_difference | Allocation cur->precedent : ECHOUE\n");
+                            exit(EXIT_FAILURE);
+                        }
                         cur->precedent->suivant = cur;
                         cur = cur->precedent;
 
@@ -305,7 +343,10 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
                     else {
                         if(calc > 0) {
                             cur->precedent = malloc(sizeof(chiffre));
-                            assert(cur->precedent);
+                            if(cur->precedent == NULL) {
+                                perror("unbounded_int_difference | Allocation cur->precedent : ECHOUE\n");
+                                exit(EXIT_FAILURE);
+                            }
                             cur->precedent->suivant = cur;
                             cur = cur->precedent;
 
@@ -359,10 +400,11 @@ unbounded_int unbounded_int_difference(unbounded_int a, unbounded_int b) {
 unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     unbounded_int res;
 
-    //ACTUELLEMENT UTILISE
-
     chiffre* dern = malloc(sizeof(chiffre));
-    assert(dern != NULL);
+    if(dern == NULL) {
+        perror("unbounded_int_produit | Allocation dern : ECHOUE\n");
+        exit(EXIT_FAILURE);
+    }
     dern->suivant = NULL;
     dern->precedent = NULL;
 
@@ -376,7 +418,10 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
         dern->c = '0';
         if (i + 1 < len_max - 1) {
             dern->precedent = malloc(sizeof(chiffre));
-            assert(dern->precedent != NULL);
+            if(dern->precedent == NULL) {
+                perror("unbounded_int_produit | Allocation dern->precedent : ECHOUE\n");
+                exit(EXIT_FAILURE);
+            }
             dern->precedent->suivant = dern;
             dern = dern->precedent;
         }
@@ -417,7 +462,10 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
 
     if (r != 0) {
         dern->precedent = malloc(sizeof(chiffre));
-        assert(dern->precedent != NULL);
+        if(dern->precedent == NULL) {
+            perror("unbounded_int_produit | Allocation dern->precedent : ECHOUE\n");
+            exit(EXIT_FAILURE);
+        }
         dern->precedent->suivant = dern;
         dern = dern->precedent;
         dern->c = (char)(r + '0');
@@ -432,76 +480,6 @@ unbounded_int unbounded_int_produit(unbounded_int a, unbounded_int b) {
     else res.signe = '-';
 
     return res;
-
-    //FONCTIONNE UNE FOIS
-    //FONCTIONNE POUR LES GRANDS NOMBRES
-
-    /*chiffre* dern = malloc(sizeof(chiffre));
-    assert(dern != NULL);
-    dern->suivant = NULL;
-    dern->precedent = NULL;
-
-    int m = a.len;
-    int n = b.len;
-
-    res.dernier = dern;
-
-    for(int i = 0; i<m+n; i++) {
-        dern->c = '0';
-        if(i+1 < m+n) {
-            dern->precedent = malloc(sizeof(chiffre));
-            assert(dern->precedent != NULL);
-            dern->precedent->suivant = dern;
-            dern = dern->precedent;
-        }
-    }
-
-    res.premier = dern;
-
-    chiffre *cur_a;
-    chiffre *cur_b;
-    chiffre *cur_res = res.dernier;
-
-    chiffre *temp = res.dernier;
-    int r = 0;
-
-    for(cur_b = b.dernier; cur_b != NULL; cur_b = cur_b->precedent) {
-        r = 0;
-        if(cur_b->c == '0') {
-            cur_res = cur_res->precedent;
-            temp = temp->precedent;
-            continue;
-        }
-        for(cur_a = a.dernier; cur_a != NULL; cur_a = cur_a->precedent) {
-            int v = (cur_res->c-'0') + (cur_a->c-'0')*(cur_b->c-'0') + r;
-            cur_res->c = (char)((v%10)+'0');
-            r = v/10;
-
-            cur_res = cur_res->precedent;
-        }
-        if(r != 0)
-            cur_res->c = r + '0';
-        if(cur_b->precedent != NULL) {
-            cur_res = temp->precedent;
-            temp = temp->precedent;
-        }
-    }
-
-    if(cur_res->c == '0') {
-        res.premier = cur_res->suivant;
-        free(cur_res);
-        res.len = a.len+b.len-1;
-    }
-    else {
-        res.premier = cur_res;
-        res.len = a.len+b.len;
-    }
-
-    if((a.signe == '+' && b.signe == '+') || (a.signe == '-' && b.signe == '-'))
-        res.signe = '+';
-    else res.signe = '-';
-
-    return res;*/
 }
 
 unbounded_int unbounded_int_puissance(unbounded_int x, unbounded_int y) {
