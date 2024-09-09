@@ -36,6 +36,27 @@ unbounded_int string2unbounded_int(const char *e) {
     return res;
 }
 
+unbounded_int ll2unbounded_int(const long long i) {
+    unbounded_int res;
+
+    char *e = malloc(sizeof(char) * 21);
+    if (e == NULL) {
+        fprintf(stderr, "Erreur: problème d'allocation mémoire (ll2unbounded_int)\n");
+        exit(EXIT_FAILURE);
+    }
+
+    sprintf(e, "%lld", i);
+
+    int sign = process_sign(e);
+    res.signe = sign;
+
+    build_chiffre_list(&res, e, sign);
+
+    free(e);
+
+    return res;
+}
+
 char *unbounded_int2string(const unbounded_int ui) {
     int offset = ui.signe;
     size_t len = ui.len;
