@@ -99,6 +99,12 @@ int unbounded_int_cmp_unbounded_int(const unbounded_int a, const unbounded_int b
     return 0;
 }
 
+int unbounded_int_cmp_ll(const unbounded_int a, const long long b) {
+    unbounded_int b_ui = ll2unbounded_int(b);
+    
+    return unbounded_int_cmp_unbounded_int(a, b_ui);
+}
+
 void build_chiffre_list(unbounded_int *ui, const char *e) {
     const unsigned int sign = is_negative(e);
     ui->signe = sign;
