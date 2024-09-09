@@ -22,9 +22,9 @@ unbounded_int string2unbounded_int(const char *e);
 unbounded_int ll2unbounded_int(const long long i);
 /* Prend un unbounded_int en argument et renvoie une chaîne de caractère */
 char *unbounded_int2string(const unbounded_int i);
-/* Compare deux unbounded_int et retourne -1, 0, 1 si a>b, a=b ou a<b */
+/* Compare deux unbounded_int et retourne -1, 0, 1 si a<b, a=b ou a>b */
 int unbounded_int_cmp_unbounded_int(const unbounded_int a, const unbounded_int b);
-/* Compare un unbounded_int et une entier long long et retourne -1, 0, 1 si a>b, a=b ou a<b */ 
+/* Compare un unbounded_int et une entier long long et retourne -1, 0, 1 si a<b, a=b ou a>b */ 
 int unbounded_int_cmp_ll(const unbounded_int a, const long long b);
 /* Retourne un unbounded_int qui correspondent a la somme des deux unbounded_int donnés en arguments */
 unbounded_int unbounded_int_somme(const unbounded_int a, const unbounded_int b);

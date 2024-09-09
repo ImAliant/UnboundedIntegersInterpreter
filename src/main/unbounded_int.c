@@ -7,17 +7,15 @@
 #define NEGATIVE 1
 
 /* Vérifie si la chaîne de caractère donnée en argument est un entier */
-int check_integer(const char *e);
-/* Renvoie le signe de l'entier */
-int process_sign(const char *e);
+static int check_integer(const char *e);
 /* Vérifie si l'entier est négatif */
-int is_negative(const char *e);
+static int is_negative(const char *e);
 /* Construit la liste de chiffre de l'unbounded_int retourné */
-void build_chiffre_list(unbounded_int *ui, const char *e, const unsigned int sign);
+static void build_chiffre_list(unbounded_int *ui, const char *e);
 /* Saute les zéros en début de chaîne */
-int skip_leading_zeros(const char *e, const unsigned int begin, const size_t len);
+static int skip_leading_zeros(const char *e, const unsigned int begin, const size_t len);
 /* Initialise un chiffre */
-chiffre *init_chiffre(const char *e);
+static chiffre *init_chiffre(const char *e);
 
 unbounded_int string2unbounded_int(const char *e) {
     unbounded_int res;
@@ -28,10 +26,7 @@ unbounded_int string2unbounded_int(const char *e) {
         exit(EXIT_FAILURE);
     }
 
-    int sign = process_sign(e);
-    res.signe = sign;
-
-    build_chiffre_list(&res, e, sign);
+    build_chiffre_list(&res, e);
 
     return res;
 }
@@ -47,10 +42,7 @@ unbounded_int ll2unbounded_int(const long long i) {
 
     sprintf(e, "%lld", i);
 
-    int sign = process_sign(e);
-    res.signe = sign;
-
-    build_chiffre_list(&res, e, sign);
+    build_chiffre_list(&res, e);
 
     free(e);
 
@@ -84,9 +76,35 @@ char *unbounded_int2string(const unbounded_int ui) {
     return res;
 }
 
-void build_chiffre_list(unbounded_int *ui, const char *e, const unsigned int sign) {
+int unbounded_int_cmp_unbounded_int(const unbounded_int a, const unbounded_int b) {
+    if (a.signe > b.signe) return -1;
+    if (a.signe < b.signe) return 1;
+
+    if (a.len > b.len) return 1;
+    if (a.len < b.len) return -1;
+
+    chiffre *a_chiffre = a.premier;
+    chiffre *b_chiffre = b.premier;
+
+    size_t len = a.len > b.len ? a.len : b.len;
+
+    for (size_t i = 0; i < len; i++) {
+        if (a_chiffre->c > b_chiffre->c) return 1;
+        if (a_chiffre->c < b_chiffre->c) return -1;
+
+        a_chiffre = a_chiffre->suivant;
+        b_chiffre = b_chiffre->suivant;
+    }
+
+    return 0;
+}
+
+void build_chiffre_list(unbounded_int *ui, const char *e) {
+    const unsigned int sign = is_negative(e);
+    ui->signe = sign;
+
     int i = 0;
-    if (is_negative(e)) {
+    if (ui->signe) {
         i++;
     }
     size_t integer_length = 0;
@@ -151,13 +169,6 @@ int check_integer(const char *e) {
         }
     }
     return 1;
-}
-
-int process_sign(const char *e) {
-    if (is_negative(e)) {
-        return NEGATIVE;
-    }
-    return POSITIVE;
 }
 
 int is_negative(const char *e) {
