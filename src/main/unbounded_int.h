@@ -27,7 +27,7 @@ int unbounded_int_cmp_unbounded_int(const unbounded_int a, const unbounded_int b
 /* Compare un unbounded_int et une entier long long et retourne -1, 0, 1 si a<b, a=b ou a>b */ 
 int unbounded_int_cmp_ll(const unbounded_int a, const long long b);
 /* Retourne un unbounded_int qui correspondent a la somme des deux unbounded_int donnés en arguments */
-unbounded_int unbounded_int_somme(const unbounded_int a, const unbounded_int b);
+unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b);
 /* Retourne un unbounded_int qui correspond a la soustraction des deux unbounded_int donnés en arguments */
 unbounded_int unbounded_int_difference(const unbounded_int a, const unbounded_int b);
 /* Retourne un unbounded_int qui correspond au produit des deux unbounded_int donnés en arguments */
