@@ -260,6 +260,34 @@ unbounded_int unbounded_int_quotient(const unbounded_int a, const unbounded_int 
     return res;
 }
 
+unbounded_int unbounded_int_modulo(const unbounded_int a, const unbounded_int b) {
+    unbounded_int res = init_unbounded_int();
+
+    if (unbounded_int_cmp_ll(b, 0) == 0) {
+        fprintf(stderr, "Erreur: division par zéro\n");
+        return res;
+    }
+
+    unbounded_int dividend = a;
+    unbounded_int divisor = b;
+
+    dividend.signe = POSITIVE;
+    divisor.signe = POSITIVE;
+
+    while (dividend.signe != NEGATIVE || unbounded_int_cmp_ll(dividend, 0) == 0) {
+        unbounded_int temp = difference(dividend, divisor);
+
+        if (unbounded_int_cmp_ll(temp, 0) == -1) break;
+        
+        dividend = temp;
+    }
+
+    res = dividend;
+    res.signe = a.signe == b.signe ? POSITIVE : NEGATIVE;
+
+    return res;
+}
+
 void product_ui_init(unbounded_int *ui, size_t len) {
     for (size_t i = 0; i < len; i++) {
         add_chiffre_front(ui, '0');
