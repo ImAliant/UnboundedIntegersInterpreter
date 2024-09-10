@@ -234,6 +234,32 @@ unbounded_int unbounded_int_produit(const unbounded_int a, const unbounded_int b
     return res;
 }
 
+unbounded_int unbounded_int_quotient(const unbounded_int a, const unbounded_int b) {
+    unbounded_int res = init_unbounded_int();
+
+    if (unbounded_int_cmp_ll(b, 0) == 0) {
+        fprintf(stderr, "Erreur: division par zéro\n");
+        return res;
+    }
+
+    unbounded_int dividend = a;
+    unbounded_int divisor = b;
+
+    dividend.signe = POSITIVE;
+    divisor.signe = POSITIVE;
+    int compteur = -1;
+
+    while (dividend.signe != NEGATIVE || unbounded_int_cmp_ll(dividend, 0) == 0) {
+        dividend = difference(dividend, divisor);
+        compteur++;
+    }
+
+    res = ll2unbounded_int(compteur);
+    res.signe = a.signe == b.signe ? POSITIVE : NEGATIVE;
+
+    return res;
+}
+
 void product_ui_init(unbounded_int *ui, size_t len) {
     for (size_t i = 0; i < len; i++) {
         add_chiffre_front(ui, '0');
@@ -347,7 +373,7 @@ void build_chiffre_list(unbounded_int *ui, const char *e) {
 
 int skip_leading_zeros(const char *e, const unsigned int begin, const size_t len) {
     int i = begin;
-    for (; i < len; i++) {
+    for (; i < len - 1; i++) {
         if (e[i] != '0') {
             break;
         }
