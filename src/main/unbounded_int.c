@@ -49,12 +49,12 @@ static int add_digits(int digit_a, int digit_b, int *retenue);
 static int substract_digits(int digit_a, int digit_b, int *retenue);
 
 unbounded_int string2unbounded_int(const char *e) {
-    unbounded_int res;
+    unbounded_int res = init_unbounded_int();
 
     int is_integer = check_integer(e);
     if (!is_integer) {
         fprintf(stderr, "Erreur: la chaîne de caractère donnée n'est pas un entier\n");
-        exit(EXIT_FAILURE);
+        return res;
     }
 
     build_chiffre_list(&res, e);
@@ -63,7 +63,7 @@ unbounded_int string2unbounded_int(const char *e) {
 }
 
 unbounded_int ll2unbounded_int(const long long i) {
-    unbounded_int res;
+    unbounded_int res = init_unbounded_int();
 
     char *e = malloc(sizeof(char) * 21);
     if (e == NULL) {
