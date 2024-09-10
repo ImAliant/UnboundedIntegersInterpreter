@@ -234,6 +234,28 @@ unbounded_int unbounded_int_produit(const unbounded_int a, const unbounded_int b
     return res;
 }
 
+unbounded_int unbounded_int_puissance(const unbounded_int a, const unbounded_int b) {
+    unbounded_int one = ll2unbounded_int(1);
+
+    if (unbounded_int_cmp_ll(b, 0) == 0) {
+        return one;
+    }
+    if (unbounded_int_cmp_ll(b, 1) == 0) {
+        return a;
+    }
+
+    unbounded_int res = init_unbounded_int();
+    unbounded_int a_copy = a;
+
+    unbounded_int i = one;
+    while(unbounded_int_cmp_unbounded_int(i, b) != 0) {
+        a_copy = unbounded_int_produit(a_copy, a);
+        i = unbounded_int_somme(i, one);
+    }
+    res = a_copy;
+    return res;
+}
+
 unbounded_int unbounded_int_quotient(const unbounded_int a, const unbounded_int b) {
     unbounded_int res = init_unbounded_int();
 
