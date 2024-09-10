@@ -5,6 +5,11 @@
 
 #define POSITIVE 0
 #define NEGATIVE 1
+#define ERROR -1
+
+#define DECIMAL_BASE 10
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 typedef int (*operation_func)(int, int, int *);
 
@@ -20,6 +25,8 @@ static int skip_leading_zeros(const char *e, const unsigned int begin, const siz
 static unbounded_int skip_leading_zeros_ui(unbounded_int ui);
 /* Initialise un chiffre */
 static chiffre *init_chiffre();
+/* Initialise un unbounded_int */
+static unbounded_int init_unbounded_int();
 /* Somme de deux unbounded_int */
 static unbounded_int somme(unbounded_int a, unbounded_int b);
 /* Soustraction de deux unbounded_int */
@@ -32,7 +39,10 @@ static char int2char(int i);
 static int char2int(char c);
 /* Comparaison valeur absolue de deux unbounded_int */
 static int unbounded_int_abs_cmp_unbounded_int(unbounded_int a, unbounded_int b);
-
+/* Initialisation d'un unbounded_int avec des zéros. Utilisé lors du produit. */
+static void product_ui_init(unbounded_int *ui, size_t len);
+/* Ajoute d'un chiffre dans un unbounded_int */
+static void add_chiffre_front(unbounded_int *ui, char c);
 /* Operation d'addition de deux unité */
 static int add_digits(int digit_a, int digit_b, int *retenue);
 /* Operation de soustraction de deux unité */
@@ -107,7 +117,7 @@ int unbounded_int_cmp_unbounded_int(const unbounded_int a, const unbounded_int b
     chiffre *a_chiffre = a.premier;
     chiffre *b_chiffre = b.premier;
 
-    size_t len = a.len > b.len ? a.len : b.len;
+    size_t len = MAX(a.len, b.len);
 
     for (size_t i = 0; i < len; i++) {
         if (a_chiffre->c > b_chiffre->c) return 1;
@@ -173,6 +183,63 @@ unbounded_int unbounded_int_difference(const unbounded_int a, const unbounded_in
     return res;
 }
 
+unbounded_int unbounded_int_produit(const unbounded_int a, const unbounded_int b) {
+    unbounded_int res = init_unbounded_int();
+
+    if (unbounded_int_cmp_ll(a, 0) == 0 || unbounded_int_cmp_ll(b, 0) == 0) {
+        return res;
+    }
+
+    res.signe = a.signe == b.signe ? POSITIVE : NEGATIVE;
+
+    chiffre *curr_a = a.dernier;
+    chiffre *curr_b = b.dernier;
+
+    int offset = 0;
+
+    /* Initialisation a zéro de tous les chiffres du unbounded_int */
+    product_ui_init(&res, a.len + b.len);
+
+    while (curr_b != NULL) {
+        int retenue = 0;
+        chiffre *current = res.dernier;
+        for (size_t i = 0; i < offset; i++) {
+            current = current->precedent;
+        }
+
+        while (curr_a != NULL) {
+            int digit_a = char2int(curr_a->c);
+            int digit_b = char2int(curr_b->c);
+
+            int digit_res = digit_a * digit_b + retenue + char2int(current->c);
+
+            retenue = digit_res / DECIMAL_BASE;
+            current->c = int2char(digit_res % DECIMAL_BASE);
+
+            current = current->precedent;
+            curr_a = curr_a->precedent;
+        }
+
+        if (retenue != 0) {
+            current->c = int2char(char2int(current->c) + retenue);
+        }
+
+        curr_b = curr_b->precedent;
+        curr_a = a.dernier;
+        offset++;
+    }
+
+    res = skip_leading_zeros_ui(res);
+
+    return res;
+}
+
+void product_ui_init(unbounded_int *ui, size_t len) {
+    for (size_t i = 0; i < len; i++) {
+        add_chiffre_front(ui, '0');
+    }
+}
+
 unbounded_int somme(unbounded_int a, unbounded_int b) {
     return process_unbounded_int(a, b, add_digits);
 }
@@ -182,17 +249,15 @@ unbounded_int difference(unbounded_int a, unbounded_int b) {
 }
 
 unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_func op) {
-    unbounded_int res;
-    res.premier = NULL;
-    res.dernier = NULL;
-    res.signe = POSITIVE;
-    res.len = 0;
+    unbounded_int res = init_unbounded_int();
 
     if (unbounded_int_abs_cmp_unbounded_int(a, b) == -1) {
         unbounded_int tmp = a;
         a = b;
         b = tmp;
         res.signe = NEGATIVE;
+    } else {
+        res.signe = POSITIVE;
     }
 
     chiffre *curr_a = a.dernier;
@@ -205,22 +270,10 @@ unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_
 
         int digit_res = op(digit_a, digit_b, &retenue);
 
-        chiffre *chiffre = init_chiffre();
-        chiffre->c = int2char(digit_res);
-
-        if (res.premier == NULL) {
-            res.premier = chiffre;
-            res.dernier = chiffre;
-        } else {
-            chiffre->suivant = res.premier;
-            res.premier->precedent = chiffre;
-            res.premier = chiffre;
-        }
+        add_chiffre_front(&res, int2char(digit_res));
 
         if (curr_a != NULL) curr_a = curr_a->precedent;
         if (curr_b != NULL) curr_b = curr_b->precedent;
-
-        res.len++;
     }
 
     res = skip_leading_zeros_ui(res);
@@ -230,15 +283,15 @@ unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_
 
 int add_digits(int digit_a, int digit_b, int *retenue) {
     int sum = digit_a + digit_b + *retenue;
-    *retenue = sum / 10;
-    return sum % 10;
+    *retenue = sum / DECIMAL_BASE;
+    return sum % DECIMAL_BASE;
 }
 
 int substract_digits(int digit_a, int digit_b, int *retenue) {
     digit_a += *retenue;
 
     if (digit_a < digit_b) {
-        digit_a += 10;
+        digit_a += DECIMAL_BASE;
         *retenue = -1;
     } else {
         *retenue = 0;
@@ -325,6 +378,32 @@ chiffre *init_chiffre() {
     chiffre->suivant = NULL;
 
     return chiffre;
+}
+
+unbounded_int init_unbounded_int() {
+    unbounded_int ui;
+    ui.premier = NULL;
+    ui.dernier = NULL;
+    ui.signe = ERROR;
+    ui.len = 0;
+
+    return ui;
+}
+
+void add_chiffre_front(unbounded_int *ui, char c) {
+    chiffre *chiffre = init_chiffre();
+    chiffre->c = c;
+
+    if (ui->premier == NULL) {
+        ui->premier = chiffre;
+        ui->dernier = chiffre;
+    } else {
+        chiffre->suivant = ui->premier;
+        ui->premier->precedent = chiffre;
+        ui->premier = chiffre;
+    }
+
+    ui->len++;
 }
 
 int check_integer(const char *e) {
