@@ -133,7 +133,7 @@ int unbounded_int_cmp_ll(const unbounded_int a, const long long b) {
     return unbounded_int_cmp_unbounded_int(a, b_ui);
 }
 
-unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
+unbounded_int unbounded_int_somme(const unbounded_int a, const unbounded_int b) {
     unbounded_int res;
 
     int compare_a = unbounded_int_cmp_ll(a, 0);
@@ -148,6 +148,26 @@ unbounded_int unbounded_int_somme(unbounded_int a, unbounded_int b) {
         res = difference(b, a);
     } else {
         res = somme(a, b);
+    }
+
+    return res;
+}
+
+unbounded_int unbounded_int_difference(const unbounded_int a, const unbounded_int b) {
+    unbounded_int res;
+
+    int compare_a = unbounded_int_cmp_ll(a, 0);
+    int compare_b = unbounded_int_cmp_ll(b, 0);
+
+    if (compare_a == -1 && compare_b == -1) {
+        res = difference(b, a);
+    } else if (compare_a != -1 && compare_b == -1) {
+        res = somme(a, b);
+    } else if (compare_a == -1 && compare_b != -1) {
+        res = somme(a, b);
+        res.signe = NEGATIVE;
+    } else {
+        res = difference(a, b);
     }
 
     return res;
