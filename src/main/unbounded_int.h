@@ -14,7 +14,7 @@ typedef struct chiffre {
 } chiffre;
 
 typedef struct {
-    char signe;       /* soit '+' soit '-' */
+    int signe;       /* soit '+' soit '-' (0 ou 1; -1 si erreur)*/
     size_t len;       /* longueur de la liste */
     chiffre *premier; /* pointeur vers le premier élément de la liste */
     chiffre *dernier; /* pointeur vers le dernier élément de la liste */

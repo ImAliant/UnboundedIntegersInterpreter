@@ -26,7 +26,7 @@ static unbounded_int difference(unbounded_int a, unbounded_int b);
 /* Processus de somme ou de soustraction */
 static unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_func op);
 /* Conversion int vers char */
-static char int2char(int i);
+static int int2char(int i);
 /* Conversion char vers int */
 static int char2int(char c);
 /* Comparaison valeur absolue de deux unbounded_int */
@@ -39,6 +39,8 @@ static void add_chiffre_front(unbounded_int *ui, char c);
 static int add_digits(int digit_a, int digit_b, int *retenue);
 /* Operation de soustraction de deux unité */
 static int substract_digits(int digit_a, int digit_b, int *retenue);
+/* Libere la mémoire d'un unbounded_int */
+static void free_unbounded_int(unbounded_int ui);
 
 unbounded_int string2unbounded_int(const char *e) {
     unbounded_int res = init_unbounded_int();
@@ -126,7 +128,7 @@ int unbounded_int_cmp_unbounded_int(const unbounded_int a, const unbounded_int b
     return 0;
 }
 
-int unbounded_int_abs_cmp_unbounded_int(unbounded_int a, unbounded_int b) {
+static int unbounded_int_abs_cmp_unbounded_int(unbounded_int a, unbounded_int b) {
     a.signe = POSITIVE;
     b.signe = POSITIVE;
 
@@ -136,7 +138,11 @@ int unbounded_int_abs_cmp_unbounded_int(unbounded_int a, unbounded_int b) {
 int unbounded_int_cmp_ll(const unbounded_int a, const long long b) {
     unbounded_int b_ui = ll2unbounded_int(b);
     
-    return unbounded_int_cmp_unbounded_int(a, b_ui);
+    int compare = unbounded_int_cmp_unbounded_int(a, b_ui);
+
+    free_unbounded_int(b_ui);
+
+    return compare;
 }
 
 unbounded_int unbounded_int_somme(const unbounded_int a, const unbounded_int b) {
@@ -200,12 +206,22 @@ unbounded_int unbounded_int_produit(const unbounded_int a, const unbounded_int b
         int retenue = 0;
         chiffre *current = res.dernier;
         for (size_t i = 0; i < offset; i++) {
+            if (current == NULL) {
+                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
+                exit(EXIT_FAILURE);
+            }
+
             current = current->precedent;
         }
 
         while (curr_a != NULL) {
             int digit_a = char2int(curr_a->c);
             int digit_b = char2int(curr_b->c);
+
+            if (current == NULL) {
+                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
+                exit(EXIT_FAILURE);
+            }
 
             int digit_res = digit_a * digit_b + retenue + char2int(current->c);
 
@@ -217,6 +233,11 @@ unbounded_int unbounded_int_produit(const unbounded_int a, const unbounded_int b
         }
 
         if (retenue != 0) {
+            if (current == NULL) {
+                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
+                exit(EXIT_FAILURE);
+            }
+
             current->c = int2char(char2int(current->c) + retenue);
         }
 
@@ -240,7 +261,7 @@ unbounded_int unbounded_int_puissance(const unbounded_int a, const unbounded_int
         return a;
     }
 
-    unbounded_int res = init_unbounded_int();
+    unbounded_int res;
     unbounded_int a_copy = a;
 
     unbounded_int i = one;
@@ -306,21 +327,21 @@ unbounded_int unbounded_int_modulo(const unbounded_int a, const unbounded_int b)
     return res;
 }
 
-void product_ui_init(unbounded_int *ui, size_t len) {
+static void product_ui_init(unbounded_int *ui, size_t len) {
     for (size_t i = 0; i < len; i++) {
         add_chiffre_front(ui, '0');
     }
 }
 
-unbounded_int somme(unbounded_int a, unbounded_int b) {
+static unbounded_int somme(unbounded_int a, unbounded_int b) {
     return process_unbounded_int(a, b, add_digits);
 }
 
-unbounded_int difference(unbounded_int a, unbounded_int b) {
+static unbounded_int difference(unbounded_int a, unbounded_int b) {
     return process_unbounded_int(a, b, substract_digits);
 }
 
-unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_func op) {
+static unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_func op) {
     unbounded_int res = init_unbounded_int();
 
     if (unbounded_int_abs_cmp_unbounded_int(a, b) == -1) {
@@ -358,13 +379,13 @@ unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_
     return res;
 }
 
-int add_digits(int digit_a, int digit_b, int *retenue) {
+static int add_digits(int digit_a, int digit_b, int *retenue) {
     int sum = digit_a + digit_b + *retenue;
     *retenue = sum / DECIMAL_BASE;
     return sum % DECIMAL_BASE;
 }
 
-int substract_digits(int digit_a, int digit_b, int *retenue) {
+static int substract_digits(int digit_a, int digit_b, int *retenue) {
     digit_a += *retenue;
 
     if (digit_a < digit_b) {
@@ -377,15 +398,15 @@ int substract_digits(int digit_a, int digit_b, int *retenue) {
     return digit_a - digit_b;
 }
 
-int char2int(char c) {
+static int char2int(char c) {
     return c - '0';
 }
 
-char int2char(int i) {
+static int int2char(int i) {
     return i + '0';
 }
 
-void build_chiffre_list(unbounded_int *ui, const char *e) {
+static void build_chiffre_list(unbounded_int *ui, const char *e) {
     const unsigned int sign = is_negative(e);
     ui->signe = sign;
 
@@ -422,7 +443,7 @@ void build_chiffre_list(unbounded_int *ui, const char *e) {
     ui->len = integer_length;
 }
 
-int skip_leading_zeros(const char *e, const unsigned int begin, const size_t len) {
+static int skip_leading_zeros(const char *e, const unsigned int begin, const size_t len) {
     int i = begin;
     for (; i < len - 1; i++) {
         if (e[i] != '0') {
@@ -432,9 +453,9 @@ int skip_leading_zeros(const char *e, const unsigned int begin, const size_t len
     return i;
 }
 
-unbounded_int skip_leading_zeros_ui(unbounded_int ui) {
+static unbounded_int skip_leading_zeros_ui(unbounded_int ui) {
     chiffre *current = ui.premier;
-    while (current->c == '0' && ui.len > 1) {
+    while (current != NULL && current->c == '0' && ui.len > 1) {
         chiffre *tmp = current;
         current = current->suivant;
         current->precedent = NULL;
@@ -445,7 +466,7 @@ unbounded_int skip_leading_zeros_ui(unbounded_int ui) {
     return ui;
 }
 
-chiffre *init_chiffre() {
+static chiffre *init_chiffre() {
     chiffre *chiffre = malloc(sizeof(chiffre));
     if (chiffre == NULL) {
         fprintf(stderr, "Erreur: problème d'allocation mémoire (init_chiffre)\n");
@@ -467,7 +488,7 @@ unbounded_int init_unbounded_int() {
     return ui;
 }
 
-void add_chiffre_front(unbounded_int *ui, char c) {
+static void add_chiffre_front(unbounded_int *ui, char c) {
     chiffre *chiffre = init_chiffre();
     chiffre->c = c;
 
@@ -496,9 +517,18 @@ int check_integer(const char *e) {
     return 1;
 }
 
-int is_negative(const char *e) {
+static int is_negative(const char *e) {
     if (e[0] == '-') {
         return 1;
     }
     return 0;
+}
+
+static void free_unbounded_int(unbounded_int ui) {
+    chiffre *current = ui.premier;
+    while (current != NULL) {
+        chiffre *tmp = current;
+        current = current->suivant;
+        free(tmp);
+    }
 }

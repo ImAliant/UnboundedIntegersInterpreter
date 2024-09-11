@@ -38,18 +38,19 @@ static size_t vars_size;
 
 static void scan_input(char *input);
 static int process_print(char *var_name);
-static int process_expression(char *var_name, char *expr);
-static int process_atomic_expr(int pos_var, char *atom);
-static int process_operation(int pos_var, operation op);
-static int find_variable_position(char *var_name);
-static unbounded_int find_variable_value(char *var_name);
-static void create_variable(char *var_name);
-static void create_variable_at_pos(char *var_name, size_t pos);
+static int process_expression(const char *var_name, char *expr);
+static int process_atomic_expr(size_t pos_var, char *atom);
+static int process_operation(size_t pos_var, operation op);
+static size_t find_variable_position(const char *var_name);
+static unbounded_int find_variable_value(const char *var_name);
+static void create_variable(const char *var_name);
+static void create_variable_at_pos(const char *var_name, size_t pos);
 static int is_operation(char op, int expected);
 static int is_expr_atomic(char *expr);
-static int is_expr_operation(char *expr);
+static int is_expr_operation(const char *expr);
 static void variables_init(size_t size);
-static operation create_operation(char *expr);
+static operation create_operation(const char *expr);
+static void free_operation(operation op);
 
 int main(int argc, char **argv) {
     variables_init(DEFAULT_VARIABLES_SIZE);
@@ -70,7 +71,7 @@ int main(int argc, char **argv) {
     return EXIT_SUCCESS;
 }
 
-void scan_input(char *input) {
+static void scan_input(char *input) {
     if (strcmp(input, EXIT) == 0) {
         exit(EXIT_SUCCESS);
     }
@@ -97,7 +98,7 @@ void scan_input(char *input) {
     }
 }
 
-int process_print(char *var_name) {
+static int process_print(char *var_name) {
     unbounded_int res = find_variable_value(var_name);
 
     if (res.signe == ERROR) return 0;
@@ -109,22 +110,26 @@ int process_print(char *var_name) {
     return 1;
 }
 
-int process_expression(char *var_name, char *expr) {
+static int process_expression(const char *var_name, char *expr) {
     if (find_variable_position(var_name) == -1) {
         create_variable(var_name);
     }
 
-    int pos = find_variable_position(var_name);
+    size_t pos = find_variable_position(var_name);
 
     if (is_expr_operation(expr)) {
         operation op = create_operation(expr);
         if (op.operation == OP_ERROR) {
+            free_operation(op);
             return 0;
         }
 
         if (!process_operation(pos, op)) {
+            free_operation(op);
             return 0;
         }
+
+        free_operation(op);
     } else if (is_expr_atomic(expr)) {
         if (!process_atomic_expr(pos, expr)) {
             return 0;
@@ -136,7 +141,7 @@ int process_expression(char *var_name, char *expr) {
     return 1;
 }
 
-void create_variable(char *var_name) {
+static void create_variable(const char *var_name) {
     if (find_variable_position(var_name) != -1) {
         fprintf(stderr, "Erreur: la variable \"%s\" existe déjà\n", var_name);
         return;
@@ -146,11 +151,13 @@ void create_variable(char *var_name) {
 
     if (len + 1 > capacity) {
         capacity *= 2;
-        vars = realloc(vars, capacity * sizeof(variables));
-        if (vars == NULL) {
+        variables *new_vars = realloc(vars, capacity * sizeof(variables));
+        if (new_vars == NULL) {
             fprintf(stderr, "Erreur: problème d'allocation mémoire (create_variable)\n");
+            free(vars);
             exit(EXIT_FAILURE);
         }
+        vars = new_vars;
     }
 
     if (len == 0) {
@@ -166,7 +173,7 @@ void create_variable(char *var_name) {
     }
 }
 
-void create_variable_at_pos(char *var_name, size_t pos) {
+static void create_variable_at_pos(const char *var_name, size_t pos) {
     vars[pos].name = malloc(strlen(var_name) + 1);
     if (vars[pos].name == NULL) {
         fprintf(stderr, "Erreur: problème d'allocation mémoire (create_variable_at_pos)\n");
@@ -178,7 +185,7 @@ void create_variable_at_pos(char *var_name, size_t pos) {
     vars_size++;
 }
 
-int process_atomic_expr(int pos_var, char *atom) {
+static int process_atomic_expr(size_t pos_var, char *atom) {
     if (!is_expr_atomic(atom)) {
         return 0;
     }
@@ -186,7 +193,7 @@ int process_atomic_expr(int pos_var, char *atom) {
     if (check_integer(atom)) {
         vars[pos_var].value = string2unbounded_int(atom);
     } else {
-        int pos_atom = find_variable_position(atom);
+        size_t pos_atom = find_variable_position(atom);
         if (pos_atom == -1) {
             fprintf(stderr, "Erreur: \"%s\" variable non trouvée\n", atom);
             return 0;
@@ -198,11 +205,11 @@ int process_atomic_expr(int pos_var, char *atom) {
     return 1;
 }
 
-int process_operation(int pos_var, operation op) {
+static int process_operation(size_t pos_var, operation op) {
     unbounded_int a_val = check_integer(op.var_a) ? string2unbounded_int(op.var_a) : find_variable_value(op.var_a);
     unbounded_int b_val = check_integer(op.var_b) ? string2unbounded_int(op.var_b) : find_variable_value(op.var_b);
 
-    unbounded_int res = init_unbounded_int();
+    unbounded_int res;
 
     switch (op.operation) {
         case SUM:
@@ -233,7 +240,7 @@ int process_operation(int pos_var, operation op) {
     return 1;
 }
 
-int find_variable_position(char *var_name) {
+static size_t find_variable_position(const char *var_name) {
     for (size_t i = 0; i < vars_size; i++) {
         if (vars[i].name != NULL && strcmp(vars[i].name, var_name) == 0) {
             return i;
@@ -243,8 +250,8 @@ int find_variable_position(char *var_name) {
     return -1;
 }
 
-unbounded_int find_variable_value(char *var_name) {
-    int pos = find_variable_position(var_name);
+static unbounded_int find_variable_value(const char *var_name) {
+    size_t pos = find_variable_position(var_name);
 
     if (pos == -1) {
         return init_unbounded_int();
@@ -253,7 +260,7 @@ unbounded_int find_variable_value(char *var_name) {
     return vars[pos].value;
 }
 
-operation create_operation(char *expr) {
+static operation create_operation(const char *expr) {
     operation op;
 
     if (!is_expr_operation(expr)) {
@@ -289,7 +296,7 @@ operation create_operation(char *expr) {
     return op;
 }
 
-void variables_init(size_t size) {
+static void variables_init(size_t size) {
     vars = malloc(size * sizeof(variables));
     if (vars == NULL) {
         fprintf(stderr, "Erreur: problème d'allocation mémoire (variables_init)\n");
@@ -300,18 +307,27 @@ void variables_init(size_t size) {
     vars_size = 0;
 }
 
-int is_operation(char op, int expected) {
+static int is_operation(char op, int expected) {
     return op == expected;
 }
 
-int is_expr_atomic(char *expr) {
+static int is_expr_atomic(char *expr) {
     return sscanf(expr, ATOM, expr) == 1;
 }
 
-int is_expr_operation(char *expr) {
+static int is_expr_operation(const char *expr) {
     char a[MAX_INPUT_SIZE];
     char b[MAX_INPUT_SIZE];
     char op;
 
     return sscanf(expr, BIN_OP, a, &op, b) == 3;
+}
+
+static void free_operation(operation op) {
+    if (op.var_a != NULL) {
+        free(op.var_a);
+    }
+    if (op.var_b != NULL) {
+        free(op.var_b);
+    }
 }
