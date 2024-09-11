@@ -4,13 +4,17 @@ SRC := src
 MAIN := $(SRC)/main
 TEST := $(SRC)/test
 
+INTERPRETER := $(MAIN)/interpreter.c
 UNBOUNDED_INT := $(MAIN)/unbounded_int.c
 TEST_UNBOUNDED := $(TEST)/test_unbounded.c
 
-all: test # need to add interpreter rule
+all: interpreter test
+
+interpreter: $(UNBOUNDED_INT) $(INTERPRETER)
+	$(CC) $(CFLAGS) -o $@ $^
 
 test: $(UNBOUNDED_INT) $(TEST_UNBOUNDED)
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
-	rm -f test
+	rm -f interpreter test
