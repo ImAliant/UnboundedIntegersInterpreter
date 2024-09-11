@@ -1,5 +1,10 @@
 # UnboundedIntegersInterpreter
 
+## Prérequis
+
+Il vous faut installer la librairie `readline`.  
+Debian: `sudo apt-get install libreadline8t64 libreadline-dev`
+
 ## Compilation et execution (dans la racine)
 
 Pour la compilation: `make` \
@@ -7,7 +12,7 @@ Puis pour l'execution: `./test` pour les tests et `./interpreter` pour lancer l'
 
 ## Utilisation
 
-L'interpréteur contient trois types d'instructions: \
+L'interpréteur contient trois types d'instructions:  
 1. `variable = entier_ou_variable op entier_ou_variable`
 2. `variable = entier`
 3. `print variable`
