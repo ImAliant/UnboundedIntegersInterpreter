@@ -3,6 +3,10 @@
 
 #include <stdlib.h>
 
+#define POSITIVE 0
+#define NEGATIVE 1
+#define ERROR -1
+
 typedef struct chiffre {
     struct chiffre *suivant;
     char c;
@@ -16,6 +20,11 @@ typedef struct {
     chiffre *dernier; /* pointeur vers le dernier élément de la liste */
 } unbounded_int;
 
+/* Vérifie si la chaîne de caractère donnée en argument est un entier */
+int check_integer(const char *e);
+
+/* Initialise un unbounded_int */
+unbounded_int init_unbounded_int();
 /* Prend une chaîne de caractère en argument et renvoie un unbounded_int */
 unbounded_int string2unbounded_int(const char *e);
 /* Prend un long long en argument et renvoie un unbounded_int */

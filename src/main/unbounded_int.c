@@ -3,18 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#define POSITIVE 0
-#define NEGATIVE 1
-#define ERROR -1
-
 #define DECIMAL_BASE 10
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 typedef int (*operation_func)(int, int, int *);
 
-/* Vérifie si la chaîne de caractère donnée en argument est un entier */
-static int check_integer(const char *e);
 /* Vérifie si l'entier est négatif */
 static int is_negative(const char *e);
 /* Construit la liste de chiffre de l'unbounded_int retourné */
@@ -25,8 +19,6 @@ static int skip_leading_zeros(const char *e, const unsigned int begin, const siz
 static unbounded_int skip_leading_zeros_ui(unbounded_int ui);
 /* Initialise un chiffre */
 static chiffre *init_chiffre();
-/* Initialise un unbounded_int */
-static unbounded_int init_unbounded_int();
 /* Somme de deux unbounded_int */
 static unbounded_int somme(unbounded_int a, unbounded_int b);
 /* Soustraction de deux unbounded_int */
@@ -81,6 +73,10 @@ unbounded_int ll2unbounded_int(const long long i) {
 }
 
 char *unbounded_int2string(const unbounded_int ui) {
+    if (ui.signe == ERROR) {
+        return "ERROR";
+    }
+
     int offset = ui.signe;
     size_t len = ui.len;
     
@@ -331,7 +327,12 @@ unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_
         unbounded_int tmp = a;
         a = b;
         b = tmp;
-        res.signe = NEGATIVE;
+        
+        if (a.signe == NEGATIVE || b.signe == NEGATIVE) {
+            res.signe = NEGATIVE;
+        } else {
+            res.signe = POSITIVE;
+        }
     } else {
         res.signe = POSITIVE;
     }
