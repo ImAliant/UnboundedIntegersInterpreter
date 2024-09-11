@@ -1,6 +1,7 @@
 #include "../main/unbounded_int.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #define TEST_STRING2INT 0
 #define TEST_INT2STRING 1
@@ -19,7 +20,7 @@
 
 #define EXIT "exit\n"
 
-static void find_test(char input, char *a, char *b);
+/* static void find_test(char *input, char *a, char *b);
 static void test_string2int(char *a, char *b);
 static void test_int2string();
 static void test_ll2unbounded_int();
@@ -30,7 +31,7 @@ static void test_difference();
 static void test_produit();
 static void test_puissance();
 static void test_quotient();
-static void test_modulo();
+static void test_modulo(); */
 
 int main(int argc, char **argv) {
     while (1) {
@@ -61,55 +62,27 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
         }
 
-        find_test(input, a, b);
+        
     }
 }
 
-void test_string2int(char *a, char *b) {
+/* void test_string2int(char *a, char *b) {
     unbounded_int a_val = string2unbounded_int(a);
     unbounded_int b_val = string2unbounded_int(b);
 
     printf("> a: %s\n", unbounded_int2string(a_val));
     printf("> b: %s\n", unbounded_int2string(b_val));
-}
+} */
 
-void find_test(char input, char *a, char *b) {
-    switch(input) {
-        case TEST_STRING2INT:
-            test_string2int(a, b);
-            break;
-        case TEST_INT2STRING:
-            test_int2string();
-            break;
-        case TEST_LL2UNBOUNDED_INT:
-            test_ll2unbounded_int();
-            break;
-        case TEST_CMP:
-            test_cmp();
-            break;
-        case TEST_CMP_LL:
-            test_cmp_ll();
-            break;
-        case TEST_SOMME:
-            test_somme();
-            break;
-        case TEST_DIFFERENCE:
-            test_difference();
-            break;
-        case TEST_PRODUIT:
-            test_produit();
-            break;
-        case TEST_PUISSANCE:
-            test_puissance();
-            break;
-        case TEST_QUOTIENT:
-            test_quotient();
-            break;
-        case TEST_MODULO:
-            test_modulo();
-            break;
-        default:
-            fprintf(stderr, "Erreur: test non reconnu\n");
-            break;
-    }
-}
+/* void test_int2string() {}
+void test_ll2unbounded_int() {}
+void test_cmp() {}
+void test_cmp_ll() {}
+void test_somme() {}
+void test_difference() {}
+void test_produit() {}
+void test_puissance() {}
+void test_quotient() {}
+void test_modulo() {}
+
+void find_test(char *input, char *a, char *b) {} */
