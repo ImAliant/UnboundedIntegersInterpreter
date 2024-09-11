@@ -1,27 +1,20 @@
-CC=gcc
-DEPS = unbounded_int.h
-OBJ = unbounded_int.o calc_unbounded_int.o
-OBJ_TEST = unbounded_int.o test_unbounded_int.o
+CC := gcc
+CFLAGS := -Wall
+SRC := src
+MAIN := $(SRC)/main
+TEST := $(SRC)/test
 
-ifeq ($(OS), Windows_NT)
-	cmd = del
-else
-	cmd = rm
-endif
+INTERPRETER := $(MAIN)/interpreter.c
+UNBOUNDED_INT := $(MAIN)/unbounded_int.c
+TEST_UNBOUNDED := $(TEST)/test_unbounded.c
 
-%.o: %.c %(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+all: interpreter test
 
-prog : $(OBJ)
-	$(CC) -o $@ -Wall -g -pedantic $^ $(CFLAGS) 
+interpreter: $(UNBOUNDED_INT) $(INTERPRETER)
+	$(CC) $(CFLAGS) -o $@ $^
 
-test : $(OBJ_TEST)
-	$(CC) -o $@ -Wall -g -pedantic $^ $(CFLAGS)
+test: $(UNBOUNDED_INT) $(TEST_UNBOUNDED)
+	$(CC) $(CFLAGS) -o $@ $^
 
-clean :
-	@echo "clean project"
-	-$(cmd) prog *.o
-	-$(cmd) test *.o
-	-$(cmd) dest.txt
-	@echo "clean completed"
-.PHONY: clean
+clean:
+	rm -f interpreter test
