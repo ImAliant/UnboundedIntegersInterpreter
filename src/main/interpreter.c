@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #define MAX_INPUT_SIZE 1024
 #define DEFAULT_VARIABLES_SIZE 10
@@ -10,7 +13,7 @@
 #define ATOM "%s"
 #define BIN_OP "%s %c %[^\n]"
 #define PRINT "print %s"
-#define EXIT "exit\n"
+#define EXIT "exit"
 
 #define EQUALS '='
 #define SUM '+'
@@ -52,16 +55,24 @@ static void variables_init(size_t size);
 static operation create_operation(const char *expr);
 static void free_operation(operation op);
 
+void init_readline() {
+    rl_initialize();
+
+    using_history();
+}
+
 int main(int argc, char **argv) {
     variables_init(DEFAULT_VARIABLES_SIZE);
+    init_readline();
+
+    char input[MAX_INPUT_SIZE];
 
     while (1) {
-        printf("> ");
-        char input[MAX_INPUT_SIZE];
-
-        if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
-            break;
+        sprintf(input, "%s", readline("> "));
+        if (strlen(input) == 0) {
+            continue;
         }
+        add_history(input);
 
         scan_input(input);
     }
