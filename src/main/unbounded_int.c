@@ -25,6 +25,12 @@ static unbounded_int somme(unbounded_int a, unbounded_int b);
 static unbounded_int difference(unbounded_int a, unbounded_int b);
 /* Processus de somme ou de soustraction */
 static unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, operation_func op);
+/* Boucle de multiplication */
+static void multiply_loop(unbounded_int *ui, const unbounded_int a, const unbounded_int b);
+/* Se déplace à un offset donné */
+static chiffre *go_to_offset(chiffre *current, size_t offset);
+/* Vérifie la retenue et l'ajoute si nécessaire */
+static void check_retenue(int retenue, chiffre *current);
 /* Conversion int vers char */
 static int int2char(int i);
 /* Conversion char vers int */
@@ -194,57 +200,10 @@ unbounded_int unbounded_int_produit(const unbounded_int a, const unbounded_int b
 
     res.signe = a.signe == b.signe ? POSITIVE : NEGATIVE;
 
-    chiffre *curr_a = a.dernier;
-    chiffre *curr_b = b.dernier;
-
-    int offset = 0;
-
     /* Initialisation a zéro de tous les chiffres du unbounded_int */
     product_ui_init(&res, a.len + b.len);
 
-    while (curr_b != NULL) {
-        int retenue = 0;
-        chiffre *current = res.dernier;
-        for (size_t i = 0; i < offset; i++) {
-            if (current == NULL) {
-                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
-                exit(EXIT_FAILURE);
-            }
-
-            current = current->precedent;
-        }
-
-        while (curr_a != NULL) {
-            int digit_a = char2int(curr_a->c);
-            int digit_b = char2int(curr_b->c);
-
-            if (current == NULL) {
-                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
-                exit(EXIT_FAILURE);
-            }
-
-            int digit_res = digit_a * digit_b + retenue + char2int(current->c);
-
-            retenue = digit_res / DECIMAL_BASE;
-            current->c = int2char(digit_res % DECIMAL_BASE);
-
-            current = current->precedent;
-            curr_a = curr_a->precedent;
-        }
-
-        if (retenue != 0) {
-            if (current == NULL) {
-                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
-                exit(EXIT_FAILURE);
-            }
-
-            current->c = int2char(char2int(current->c) + retenue);
-        }
-
-        curr_b = curr_b->precedent;
-        curr_a = a.dernier;
-        offset++;
-    }
+    multiply_loop(&res, a, b);
 
     res = skip_leading_zeros_ui(res);
 
@@ -375,6 +334,68 @@ static unbounded_int process_unbounded_int(unbounded_int a, unbounded_int b, ope
     }
 
     res = skip_leading_zeros_ui(res);
+
+    return res;
+}
+
+static void multiply_loop(unbounded_int *ui, const unbounded_int a, const unbounded_int b) {
+    chiffre *curr_a = a.dernier;
+    chiffre *curr_b = b.dernier;
+
+    int retenue = 0;
+    size_t offset = 0;
+
+    while (curr_b != NULL) {
+        chiffre *current = ui->dernier;
+        
+        current = go_to_offset(current, offset);
+
+        while (curr_a != NULL) {
+            int digit_a = char2int(curr_a->c);
+            int digit_b = char2int(curr_b->c);
+
+            if (current == NULL) {
+                fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
+                exit(EXIT_FAILURE);
+            }
+
+            int digit_res = digit_a * digit_b + retenue + char2int(current->c);
+            retenue = digit_res / DECIMAL_BASE;
+            current->c = int2char(digit_res % DECIMAL_BASE);
+
+            current = current->precedent;
+            curr_a = curr_a->precedent;
+        }
+
+        check_retenue(retenue, current);
+
+        curr_b = curr_b->precedent;
+        curr_a = a.dernier;
+        offset++;
+    }
+}
+
+static void check_retenue(int retenue, chiffre *current) {
+    if (retenue == 0) return;
+
+    if (current == NULL) {
+        fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
+        exit(EXIT_FAILURE);
+    }
+
+    current->c = int2char(char2int(current->c) + retenue);
+}
+
+static chiffre *go_to_offset(chiffre *current, size_t offset) {
+    chiffre *res = current;
+    for (size_t i = 0; i < offset; i++) {
+        if (res == NULL) {
+            fprintf(stderr, "Erreur: problème d'allocation mémoire (unbounded_int_produit)\n");
+            exit(EXIT_FAILURE);
+        }
+
+        res = res->precedent;
+    }
 
     return res;
 }
